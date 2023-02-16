@@ -1,4 +1,5 @@
-trulia-java-rets-client
+Forked from the trulia-java-rets-client February 2023.
+
 =================
 
 The Trulia Java RETS Client is a library used to access data on RETS compliant servers.
