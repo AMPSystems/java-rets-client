@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0" errors="0" skipped="0" tests="4" name="org.realtors.rets.client.GetMetadataResponseTest">
+<testsuite failures="0" time="0" errors="0" skipped="0" tests="4" name="client.us.ampre.rets.GetMetadataResponseTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,8 +58,8 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0" classname="org.realtors.rets.client.GetMetadataResponseTest" name="testValidSystemMetadataResponse"/>
-  <testcase time="0" classname="org.realtors.rets.client.GetMetadataResponseTest" name="testSingleSegmentResponse"/>
-  <testcase time="0" classname="org.realtors.rets.client.GetMetadataResponseTest" name="testMultipleSegmentResponse"/>
-  <testcase time="0" classname="org.realtors.rets.client.GetMetadataResponseTest" name="testNoRecordsMetadataResponse"/>
+  <testcase time="0" classname="client.us.ampre.rets.GetMetadataResponseTest" name="testValidSystemMetadataResponse"/>
+  <testcase time="0" classname="client.us.ampre.rets.GetMetadataResponseTest" name="testSingleSegmentResponse"/>
+  <testcase time="0" classname="client.us.ampre.rets.GetMetadataResponseTest" name="testMultipleSegmentResponse"/>
+  <testcase time="0" classname="client.us.ampre.rets.GetMetadataResponseTest" name="testNoRecordsMetadataResponse"/>
 </testsuite>

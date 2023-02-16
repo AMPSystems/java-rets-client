@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.003" errors="0" skipped="0" tests="3" name="org.realtors.rets.common.metadata.attrib.AttrAlphanumTest">
+<testsuite failures="0" time="0.003" errors="0" skipped="0" tests="3" name="attrib.metadata.common.us.ampre.rets.AttrAlphanumTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,7 +58,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.002" classname="org.realtors.rets.common.metadata.attrib.AttrAlphanumTest" name="testAlphanum"/>
-  <testcase time="0" classname="org.realtors.rets.common.metadata.attrib.AttrAlphanumTest" name="testFailures"/>
-  <testcase time="0" classname="org.realtors.rets.common.metadata.attrib.AttrAlphanumTest" name="testLength"/>
+  <testcase time="0.002" classname="attrib.metadata.common.us.ampre.rets.AttrAlphanumTest" name="testAlphanum"/>
+  <testcase time="0" classname="attrib.metadata.common.us.ampre.rets.AttrAlphanumTest" name="testFailures"/>
+  <testcase time="0" classname="attrib.metadata.common.us.ampre.rets.AttrAlphanumTest" name="testLength"/>
 </testsuite>

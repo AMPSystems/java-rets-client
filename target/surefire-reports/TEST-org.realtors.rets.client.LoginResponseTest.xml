@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.601" errors="0" skipped="0" tests="1" name="org.realtors.rets.client.LoginResponseTest">
+<testsuite failures="0" time="0.601" errors="0" skipped="0" tests="1" name="client.us.ampre.rets.LoginResponseTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,5 +58,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.601" classname="org.realtors.rets.client.LoginResponseTest" name="testStrictLowerCaseKeys"/>
+  <testcase time="0.601" classname="client.us.ampre.rets.LoginResponseTest" name="testStrictLowerCaseKeys"/>
 </testsuite>

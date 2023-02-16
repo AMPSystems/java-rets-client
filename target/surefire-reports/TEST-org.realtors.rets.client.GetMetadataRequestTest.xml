@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.105" errors="0" skipped="0" tests="3" name="org.realtors.rets.client.GetMetadataRequestTest">
+<testsuite failures="0" time="0.105" errors="0" skipped="0" tests="3" name="client.us.ampre.rets.GetMetadataRequestTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,7 +58,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.083" classname="org.realtors.rets.client.GetMetadataRequestTest" name="testGetMetadataRequestSimple"/>
-  <testcase time="0" classname="org.realtors.rets.client.GetMetadataRequestTest" name="testGetMetadataRequestMultipleIds"/>
-  <testcase time="0.002" classname="org.realtors.rets.client.GetMetadataRequestTest" name="testInvalidGetMetadataRequests"/>
+  <testcase time="0.083" classname="client.us.ampre.rets.GetMetadataRequestTest" name="testGetMetadataRequestSimple"/>
+  <testcase time="0" classname="client.us.ampre.rets.GetMetadataRequestTest" name="testGetMetadataRequestMultipleIds"/>
+  <testcase time="0.002" classname="client.us.ampre.rets.GetMetadataRequestTest" name="testInvalidGetMetadataRequests"/>
 </testsuite>

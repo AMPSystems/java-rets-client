@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.059" errors="0" skipped="0" tests="3" name="org.realtors.rets.common.metadata.attrib.AttrAbstractTextTest">
+<testsuite failures="0" time="0.059" errors="0" skipped="0" tests="3" name="attrib.metadata.common.us.ampre.rets.AttrAbstractTextTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,7 +58,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.059" classname="org.realtors.rets.common.metadata.attrib.AttrAbstractTextTest" name="testTooLong"/>
-  <testcase time="0" classname="org.realtors.rets.common.metadata.attrib.AttrAbstractTextTest" name="testTooShort"/>
-  <testcase time="0" classname="org.realtors.rets.common.metadata.attrib.AttrAbstractTextTest" name="testAttrAbstractText"/>
+  <testcase time="0.059" classname="attrib.metadata.common.us.ampre.rets.AttrAbstractTextTest" name="testTooLong"/>
+  <testcase time="0" classname="attrib.metadata.common.us.ampre.rets.AttrAbstractTextTest" name="testTooShort"/>
+  <testcase time="0" classname="attrib.metadata.common.us.ampre.rets.AttrAbstractTextTest" name="testAttrAbstractText"/>
 </testsuite>

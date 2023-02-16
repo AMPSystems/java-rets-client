@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="1.17" errors="0" skipped="0" tests="12" name="org.realtors.rets.client.StreamingSearchResultProcessorTest">
+<testsuite failures="0" time="1.17" errors="0" skipped="0" tests="12" name="client.us.ampre.rets.StreamingSearchResultProcessorTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home/jre/lib"/>
@@ -58,16 +58,16 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.018" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testSmallResult"/>
-  <testcase time="0.001" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testAllTags"/>
-  <testcase time="0.002" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testReplyCode20208"/>
-  <testcase time="0.001" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testReplyCode20201WithColumns"/>
-  <testcase time="0.003" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testReplyCode20201WithoutColumns"/>
-  <testcase time="0.002" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testEarlyException"/>
-  <testcase time="0.002" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testLateException"/>
-  <testcase time="0.001" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testEarlyExceptionWithTrap"/>
-  <testcase time="0.002" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testLateExceptionWithTrap"/>
-  <testcase time="0" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testEarlyCallToIsMaxRows"/>
-  <testcase time="1.001" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testTimeout"/>
-  <testcase time="0.123" classname="org.realtors.rets.client.StreamingSearchResultProcessorTest" name="testIONotEatenException"/>
+  <testcase time="0.018" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testSmallResult"/>
+  <testcase time="0.001" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testAllTags"/>
+  <testcase time="0.002" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testReplyCode20208"/>
+  <testcase time="0.001" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testReplyCode20201WithColumns"/>
+  <testcase time="0.003" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testReplyCode20201WithoutColumns"/>
+  <testcase time="0.002" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testEarlyException"/>
+  <testcase time="0.002" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testLateException"/>
+  <testcase time="0.001" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testEarlyExceptionWithTrap"/>
+  <testcase time="0.002" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testLateExceptionWithTrap"/>
+  <testcase time="0" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testEarlyCallToIsMaxRows"/>
+  <testcase time="1.001" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testTimeout"/>
+  <testcase time="0.123" classname="client.us.ampre.rets.StreamingSearchResultProcessorTest" name="testIONotEatenException"/>
 </testsuite>
