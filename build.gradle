@@ -127,6 +127,7 @@ publishing {
 
 bootRun {
     systemProperty("spring.profiles.active", "local")
+    systemProperty("spring.profiles.active", "paul")
     systemProperty("polyglot.engine.WarnInterpreterOnly", "false")
 }
 

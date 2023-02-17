@@ -1,6 +1,7 @@
 package us.ampre.rets;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
@@ -15,6 +16,9 @@ import java.net.MalformedURLException;
 @Slf4j
 @SpringBootApplication
 public class RetsApplication implements CommandLineRunner {
+
+	@Autowired
+	private RetsProperties retsProperties;
 
 	public static void main(String[] args) {
 
@@ -36,13 +40,13 @@ public class RetsApplication implements CommandLineRunner {
 		//Create a RetsHttpClient (other constructors provide configuration i.e. timeout, gzip capability)
 		RetsHttpClient httpClient = new CommonsHttpClient();
 		RetsVersion retsVersion = RetsVersion.RETS_1_7_2;
-		String loginUrl = "https://hhimls.mlsmatrix.com/Rets/login.ashx";
+		String loginUrl = retsProperties.getLoginUrl();
 
 		//Create a RetesSession with RetsHttpClient
 		RetsSession session = new RetsSession(loginUrl, httpClient, retsVersion);
 
-		String username = "username";
-		String password = "password";
+		String username = retsProperties.getUsername();
+		String password = retsProperties.getPassword();
 
 		//Set method as GET or POST
 		session.setMethod("POST");
@@ -50,7 +54,8 @@ public class RetsApplication implements CommandLineRunner {
 			//Login
 			session.login(username, password);
 		} catch (RetsException e) {
-			e.printStackTrace();
+			log.error("", e);
+			return;
 		}
 
 		try {
