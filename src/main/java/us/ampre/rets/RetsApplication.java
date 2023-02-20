@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import us.ampre.rets.client.*;
+import us.ampre.rets.common.metadata.Metadata;
 import us.ampre.rets.common.metadata.types.MClass;
 import us.ampre.rets.common.metadata.types.MResource;
 import us.ampre.rets.common.metadata.types.MSystem;
@@ -59,6 +60,8 @@ public class RetsApplication implements CommandLineRunner {
 		}
 
 		try {
+			Metadata m = session.getMetadata();
+
 			MSystem system = session.getMetadata().getSystem();
 			System.out.println(
 					"SYSTEM: " + system.getSystemID() +
@@ -73,6 +76,8 @@ public class RetsApplication implements CommandLineRunner {
 					System.out.println(
 							"        CLASS: " + classification.getClassName() +
 									" - " + classification.getDescription());
+
+
 				}
 			}
 		}
