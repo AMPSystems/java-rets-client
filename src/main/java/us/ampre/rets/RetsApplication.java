@@ -63,26 +63,16 @@ public class RetsApplication implements CommandLineRunner {
 			Metadata m = session.getMetadata();
 
 			MSystem system = session.getMetadata().getSystem();
-			System.out.println(
-					"SYSTEM: " + system.getSystemID() +
-							" - " + system.getSystemDescription());
-
+			log.info("System: {} / {}", system.getSystemID(), system.getSystemDescription());
 			for(MResource resource: system.getMResources()) {
-
-				System.out.println(
-						"    RESOURCE: " + resource.getResourceID());
-
+				log.info("  Resource: {} / {}", resource.getResourceID(), resource.getDescription());
 				for(MClass classification: resource.getMClasses()) {
-					System.out.println(
-							"        CLASS: " + classification.getClassName() +
-									" - " + classification.getDescription());
-
-
+					log.info("    Class: {} / {}", classification.getClassName(), classification.getDescription());
 				}
 			}
 		}
 		catch (RetsException e) {
-			e.printStackTrace();
+			log.error("Exception traversing metadata tree.", e);
 		}
 		finally {
 			if(session != null) {
@@ -90,7 +80,7 @@ public class RetsApplication implements CommandLineRunner {
 					session.logout();
 				}
 				catch(RetsException e) {
-					e.printStackTrace();
+					log.error("Exception ending RETS session/logout.", e);
 				}
 			}
 		}

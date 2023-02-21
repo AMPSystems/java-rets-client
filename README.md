@@ -1,4 +1,6 @@
-Forked from the trulia-java-rets-client February 2023.
+## Forked from the trulia-java-rets-client February 2023.
+
+## Package namespace changed to AMP owned domain to avoid conflicts.
 
 =================
 
