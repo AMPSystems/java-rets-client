@@ -8,9 +8,11 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import us.ampre.rets.client.*;
 import us.ampre.rets.common.metadata.Metadata;
+import us.ampre.rets.common.metadata.MetadataType;
 import us.ampre.rets.common.metadata.types.MClass;
 import us.ampre.rets.common.metadata.types.MResource;
 import us.ampre.rets.common.metadata.types.MSystem;
+import us.ampre.rets.common.metadata.types.MTable;
 
 import java.net.MalformedURLException;
 
@@ -68,6 +70,9 @@ public class RetsApplication implements CommandLineRunner {
 				log.info("  Resource: {} / {}", resource.getResourceID(), resource.getDescription());
 				for(MClass classification: resource.getMClasses()) {
 					log.info("    Class: {} / {}", classification.getClassName(), classification.getDescription());
+						for (MTable mTable : classification.getMTables()) {
+							log.info("      Table: {} / {}", mTable.getSystemName(), mTable.getStandardName());
+						}
 				}
 			}
 		}
