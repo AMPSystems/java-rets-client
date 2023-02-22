@@ -279,7 +279,7 @@ public class RetsTransport {
 			try {
 				SAXBuilder xmlBuilder = new SAXBuilder();
 				Document xmlDocument = xmlBuilder.build(httpResponse.getInputStream());
-				if (!location.equals("null")){
+				if (location.equals("null") == false) {
 					 XMLOutputter outputter = new XMLOutputter();
 					 FileWriter writer = new FileWriter(location);
 					 outputter.output(xmlDocument, writer); 

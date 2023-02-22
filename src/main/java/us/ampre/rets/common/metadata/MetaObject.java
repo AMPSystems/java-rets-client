@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -24,8 +25,9 @@ import us.ampre.rets.common.metadata.attrib.AttrText;
 import us.ampre.rets.common.metadata.attrib.AttrVersion;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
+@Slf4j
 public abstract class MetaObject implements Serializable {
-	private static final Log LOG = LogFactory.getLog(MetaObject.class);
+//	private static final Log LOG = LogFactory.getLog(MetaObject.class);
 
 	/** a standard parser used by different child types */
 	protected static final AttrType sAlphanum = new AttrAlphanum(0, 0);
@@ -103,10 +105,8 @@ public abstract class MetaObject implements Serializable {
 				// Let's make sure no one mucks with the map later
 				map = Collections.unmodifiableMap(map);
 				sAttributeMapCache.put(new CacheKey(this, strictParsing), map);
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Adding to attribute cache: " + this.getClass().getName() + ", " + strictParsing);
-				}
-			}
+				log.debug("Adding to attribute cache: " + this.getClass().getName() + ", " + strictParsing);
+		}
 			return map;
 		}
 	}
@@ -151,7 +151,7 @@ public abstract class MetaObject implements Serializable {
 				addChild(type, child);
 			}
 		} catch (MetadataException e) {
-			LOG.error(toString() + " unable to fetch " + type.name() + " children");
+			log.error(toString() + " unable to fetch " + type.name() + " children");
 			return false;
 		}
 		return true;
@@ -205,7 +205,7 @@ public abstract class MetaObject implements Serializable {
 		if (atype.getType() == type) {
 			return this.attributes.get(key);
 		} 
-		LOG.warn("type mismatch, expected " + type.getName() + " but" + " got " + atype.getType().getName());
+		log.warn("type mismatch, expected " + type.getName() + " but" + " got " + atype.getType().getName());
 		return null;
 	}
 
@@ -243,11 +243,11 @@ public abstract class MetaObject implements Serializable {
 			try {
 				this.attributes.put(key, type.parse(value,this.strict));
 			} catch (MetaParseException e) {
-				LOG.warn(toString() + " couldn't parse attribute " + key + ", value " + value + ": " + e.getMessage());
+				log.warn(toString() + " couldn't parse attribute " + key + ", value " + value + ": " + e.getMessage());
 			}
 		} else {
 			this.attributes.put(key, value);
-			LOG.warn("Unknown key (" + toString() + "): " + key);
+			log.warn("Unknown key [{}] data: (" + this.toString() + ") ", key);
 		}
 	}
 
