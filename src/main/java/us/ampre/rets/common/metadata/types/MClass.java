@@ -51,16 +51,16 @@ public class MClass extends MetaObject {
 		return getStringAttribute(DESCRIPTION);
 	}
 
-	public int getTableVersion() {
-		return getIntAttribute(TABLEVERSION);
+	public String getTableVersion() {
+		return getStringAttribute(TABLEVERSION);
 	}
 
 	public String getTableDate() {
 		return getDateAttribute(TABLEDATE);
 	}
 
-	public int getUpdateVersion() {
-		return getIntAttribute(UPDATEVERSION);
+	public String getUpdateVersion() {
+		return getStringAttribute(UPDATEVERSION);
 	}
 
 	public String getUpdateDate() {
@@ -96,9 +96,9 @@ public class MClass extends MetaObject {
 		attributeMap.put(VISIBLENAME, sPlaintext32);
 		attributeMap.put(STANDARDNAME, sAlphanum32);
 		attributeMap.put(DESCRIPTION, sPlaintext128);
-		attributeMap.put(TABLEVERSION, sAttrVersion);
+		attributeMap.put(TABLEVERSION, sAlphanum64);
 		attributeMap.put(TABLEDATE, sAttrDate);
-		attributeMap.put(UPDATEVERSION, sAttrVersion);
+		attributeMap.put(UPDATEVERSION, sAlphanum64);
 		attributeMap.put(UPDATEDATE, sAttrDate);
 		attributeMap.put(DELETEDFLAGFIELD, retsname);
 		attributeMap.put(DELETEDFLAGVALUE, sAlphanum32);

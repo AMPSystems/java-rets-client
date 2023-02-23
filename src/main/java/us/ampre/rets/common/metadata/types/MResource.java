@@ -76,72 +76,72 @@ public class MResource extends MetaObject {
 		return getIntAttribute(CLASSCOUNT);
 	}
 
-	public int getClassVersion() {
-		return getIntAttribute(CLASSVERSION);
+	public String getClassVersion() {
+		return getStringAttribute(CLASSVERSION);
 	}
 
 	public String getClassDate() {
 		return getDateAttribute(CLASSDATE);
 	}
 
-	public int getObjectVersion() {
-		return getIntAttribute(OBJECTVERSION);
+	public String getObjectVersion() {
+		return getStringAttribute(OBJECTVERSION);
 	}
 
 	public String getObjectDate() {
 		return getDateAttribute(OBJECTDATE);
 	}
 
-	public int getSearchHelpVersion() {
-		return getIntAttribute(SEARCHHELPVERSION);
+	public String getSearchHelpVersion() {
+		return getStringAttribute(SEARCHHELPVERSION);
 	}
 
 	public String getSearchHelpDate() {
 		return getDateAttribute(SEARCHHELPDATE);
 	}
 
-	public int getEditMaskVersion() {
-		return getIntAttribute(EDITMASKVERSION);
+	public String getEditMaskVersion() {
+		return getStringAttribute(EDITMASKVERSION);
 	}
 
 	public String getEditMaskDate() {
 		return getDateAttribute(EDITMASKDATE);
 	}
 
-	public int getLookupVersion() {
-		return getIntAttribute(LOOKUPVERSION);
+	public String getLookupVersion() {
+		return getStringAttribute(LOOKUPVERSION);
 	}
 
 	public String getLookupDate() {
 		return getDateAttribute(LOOKUPDATE);
 	}
 
-	public int getUpdateHelpVersion() {
-		return getIntAttribute(UPDATEHELPVERSION);
+	public String getUpdateHelpVersion() {
+		return getStringAttribute(UPDATEHELPVERSION);
 	}
 
 	public String getUpdateHelpDate() {
 		return getDateAttribute(UPDATEHELPDATE);
 	}
 
-	public int getValidationExpressionVersion() {
-		return getIntAttribute(VALIDATIONEXPRESSIONVERSION);
+	public String getValidationExpressionVersion() {
+		return getStringAttribute(VALIDATIONEXPRESSIONVERSION);
 	}
 
 	public String getValidationExpressionDate() {
 		return getDateAttribute(VALIDATIONEXPRESSIONDATE);
 	}
 
-	public int getValidationLookupVersion() {
-		return getIntAttribute(VALIDATIONLOOKUPVERSION);
+	public String getValidationLookupVersion() {
+		return getStringAttribute(VALIDATIONLOOKUPVERSION);
 	}
 
 	public String getValidationLookupDate() {
 		return getDateAttribute(VALIDATIONLOOKUPDATE);
 	}
 
-	public int getValidationExternalVersion() {
-		return getIntAttribute(VALIDATIONEXTERNALVERSION);
+	public String getValidationExternalVersion() {
+		return getStringAttribute(VALIDATIONEXTERNALVERSION);
 	}
 
 	public String getValidationExternalDate() {
@@ -247,23 +247,23 @@ public class MResource extends MetaObject {
 		attributeMap.put(DESCRIPTION, sPlaintext64);
 		attributeMap.put(KEYFIELD, sAlphanum32);
 		attributeMap.put(CLASSCOUNT, sAttrNumeric);
-		attributeMap.put(CLASSVERSION, sAttrVersion);
+		attributeMap.put(CLASSVERSION, sAlphanum64);
 		attributeMap.put(CLASSDATE, sAttrDate);
-		attributeMap.put(OBJECTVERSION, sAttrVersion);
+		attributeMap.put(OBJECTVERSION, sAlphanum64);
 		attributeMap.put(OBJECTDATE, sAttrDate);
-		attributeMap.put(SEARCHHELPVERSION, sAttrVersion);
+		attributeMap.put(SEARCHHELPVERSION, sAlphanum64);
 		attributeMap.put(SEARCHHELPDATE, sAttrDate);
-		attributeMap.put(EDITMASKVERSION, sAttrVersion);
+		attributeMap.put(EDITMASKVERSION, sAlphanum64);
 		attributeMap.put(EDITMASKDATE, sAttrDate);
-		attributeMap.put(LOOKUPVERSION, sAttrVersion);
+		attributeMap.put(LOOKUPVERSION, sAlphanum64);
 		attributeMap.put(LOOKUPDATE, sAttrDate);
-		attributeMap.put(UPDATEHELPVERSION, sAttrVersion);
+		attributeMap.put(UPDATEHELPVERSION, sAlphanum64);
 		attributeMap.put(UPDATEHELPDATE, sAttrDate);
-		attributeMap.put(VALIDATIONEXPRESSIONVERSION, sAttrVersion);
+		attributeMap.put(VALIDATIONEXPRESSIONVERSION, sAlphanum64);
 		attributeMap.put(VALIDATIONEXPRESSIONDATE, sAttrDate);
-		attributeMap.put(VALIDATIONLOOKUPVERSION, sAttrVersion);
+		attributeMap.put(VALIDATIONLOOKUPVERSION, sAlphanum64);
 		attributeMap.put(VALIDATIONLOOKUPDATE, sAttrDate);
-		attributeMap.put(VALIDATIONEXTERNALVERSION, sAttrVersion);
+		attributeMap.put(VALIDATIONEXTERNALVERSION, sAlphanum64);
 		attributeMap.put(VALIDATIONEXTERNALDATE, sAttrDate);
 	}
 
