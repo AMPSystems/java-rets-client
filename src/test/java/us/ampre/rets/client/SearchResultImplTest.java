@@ -26,11 +26,11 @@ public class SearchResultImplTest extends RetsTestCase {
 		result.setColumns(cols);
 		result.addRow(row1);
 		result.addRow(row2);
-		result.setMaxrows();
+		result.setMaxRows();
 		result.setComplete();
 		assertEquals("setCount wrong", result.getCount(), 5);
 		assertTrue("isComplete not set", result.isComplete());
-		assertTrue("isMaxrows not set", result.isMaxrows());
+		assertTrue("isMaxrows not set", result.isMaxRows());
 		assertEquals("columns mangled", cols, result.getColumns());
 		assertEquals("row 1 mangled", row1, result.getRow(0));
 		assertEquals("row 2 mangled", row2alt, result.getRow(1));
@@ -51,6 +51,6 @@ public class SearchResultImplTest extends RetsTestCase {
 		result.setComplete();
 		assertEquals("row count wrong", 1, result.getCount());
 		assertTrue("isComplete wrong", result.isComplete());
-		assertFalse("isMaxrows wrong", result.isMaxrows());
+		assertFalse("isMaxrows wrong", result.isMaxRows());
 	}
 }

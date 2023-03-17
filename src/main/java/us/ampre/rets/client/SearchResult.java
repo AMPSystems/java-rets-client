@@ -15,7 +15,7 @@ public interface SearchResult extends SearchResultInfo {
 
 	public String[] getColumns();
 
-	public boolean isMaxrows();
+	public boolean isMaxRows();
 
 	public int getCount();
 

@@ -1,31 +1,22 @@
 package us.ampre.rets.client;
 
+import lombok.extern.slf4j.Slf4j;
+import org.xml.sax.*;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
 /**
  * 
  * Handles XML parsing from response setting the proper fields using a SearchResultCollector
  *
  */
-public class SearchResultHandler implements ContentHandler, ErrorHandler{
-	private static final Log LOG = LogFactory.getLog(SearchResultHandler.class);
+@Slf4j
+public class SearchResultHandler implements ContentHandler, ErrorHandler {
 	private static SAXParserFactory FACTORY = SAXParserFactory.newInstance();
 
 	private int dataCount;
@@ -64,6 +55,7 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler{
 		}
 		if (name.equals("RETS") || name.equals("RETS-STATUS")) {
 			String rawrepcode = atts.getValue("ReplyCode");
+			log.debug("Rets ReplyCode = [{}]", rawrepcode);
 			try {
 				int repcode = Integer.parseInt(rawrepcode);
 				if (repcode > 0) {
@@ -118,11 +110,11 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler{
 			return;
 		}
 		if (name == "MAXROWS") {
-			this.collector.setMaxrows();
+			this.collector.setMaxRows();
 			return;
 		}
 		// Unknown tag. danger, will.
-		LOG.warn("Unknown tag: " + name + ", qName = " + qName);
+		log.warn("Unknown tag: " + name + ", qName = " + qName);
 
 	}
 
@@ -186,11 +178,11 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler{
 	}
 
 	public void startDocument() {
-		LOG.info("Start document");
+		log.info("Start document");
 	}
 
 	public void endDocument() {
-		LOG.info("Document ended");
+		log.info("Document ended");
 		this.collector.setComplete();
 	}
 
@@ -223,7 +215,7 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler{
 	}
 
 	public void warning(SAXParseException e) {
-		LOG.warn("an error occured while parsing.  Attempting to continue", e);
+		log.warn("an error occured while parsing.  Attempting to continue", e);
 	}
 
 
@@ -257,24 +249,25 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler{
 		String encoding = src.getEncoding();
 		if (encoding == null && (charset != null)){
 			encoding = charset;
-			LOG.warn("Charset from headers:" + charset + ". Setting as correct encoding for parsing");
+			log.warn("Charset from headers:" + charset + ". Setting as correct encoding for parsing");
 			src.setEncoding(encoding);
 		}
 		try {
-				SAXParser p = FACTORY.newSAXParser();
-				XMLReader r = p.getXMLReader();
-				r.setContentHandler(this);
-				r.setErrorHandler(this);
-				r.parse(src);
-			} catch (SAXException se) {
-				if (se.getException() != null && se.getException() instanceof RetsException) {
-					throw (RetsException) se.getException();
-				}
-				throw new RetsException(se);
-			} catch (Exception e) {
-				LOG.error("An exception occured", e);
-				throw new RetsException(e);
+			SAXParser p = FACTORY.newSAXParser();
+			XMLReader r = p.getXMLReader();
+			r.setContentHandler(this);
+			r.setErrorHandler(this);
+			r.parse(src);
 
+		} catch (SAXException se) {
+			if (se.getException() != null && se.getException() instanceof RetsException) {
+				throw (RetsException) se.getException();
 			}
+			throw new RetsException(se);
+		} catch (Exception e) {
+			log.error("An exception occurred.", e);
+			throw new RetsException(e);
+
+		}
 	}
 }

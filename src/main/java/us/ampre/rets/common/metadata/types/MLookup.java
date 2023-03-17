@@ -37,11 +37,11 @@ public class MLookup extends MetaObject {
 		return getStringAttribute(VISIBLENAME);
 	}
 
-	public int getVersion() {
+	public String getVersion() {
 		
-		int ver = getIntAttribute(VERSION);
-		if (ver == 0){
-			ver = getIntAttribute(LOOKUPTYPEVERSION);
+		String ver = getStringAttribute(VERSION);
+		if (ver == null){
+			ver = getStringAttribute(LOOKUPTYPEVERSION);
 		}
 		return ver;
 	}
@@ -77,9 +77,9 @@ public class MLookup extends MetaObject {
 		attributeMap.put(METADATAENTRYID, sAttrMetadataEntryId);
 		attributeMap.put(LOOKUPNAME, sAlphanum32);
 		attributeMap.put(VISIBLENAME, sPlaintext32);
-		attributeMap.put(VERSION, sAttrVersion);
+		attributeMap.put(VERSION, sAlphanum64);
 		attributeMap.put(DATE, sAttrDate);
-		attributeMap.put(LOOKUPTYPEVERSION, sAttrVersion);
+		attributeMap.put(LOOKUPTYPEVERSION, sAlphanum64);
 		attributeMap.put(LOOKUPTYPEDATE, sAttrDate);
 	}
 

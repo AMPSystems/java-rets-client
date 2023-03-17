@@ -1,21 +1,32 @@
 package us.ampre.rets.client;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.LogFactory;
 /**
  * Concrete Implementation of SearchResult interface
  *
  */
+@Slf4j
 public class SearchResultImpl implements SearchResult, SearchResultCollector {
 
+	@Getter
 	private String[] columnNames;
+	@Getter
+	private Hashtable<String, Integer> columnMap;
+	@Getter
+	@Setter
 	private int count;
+	@Getter
 	private List<String[]> rows;
+	@Getter
+	@Setter
 	private boolean maxRows;
+	@Getter
+	@Setter
 	private boolean complete;
 
 	public SearchResultImpl() {
@@ -25,8 +36,8 @@ public class SearchResultImpl implements SearchResult, SearchResultCollector {
 		this.complete = false;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
+	public String[] getColumns() {
+		return this.columnNames;
 	}
 
 	public int getCount() {
@@ -41,11 +52,15 @@ public class SearchResultImpl implements SearchResult, SearchResultCollector {
 	}
 
 	public void setColumns(String[] columns) {
+		// save the columns
 		this.columnNames = columns;
-	}
-
-	public String[] getColumns() {
-		return this.columnNames;
+		// create a hashmap of where each column is
+		int i = 0;
+		columnMap = new Hashtable<>();
+		for (String column: columnNames) {
+			columnMap.put(column, i);
+			i++;
+		}
 	}
 
 	public boolean addRow(String[] row) {
@@ -69,19 +84,12 @@ public class SearchResultImpl implements SearchResult, SearchResultCollector {
 		return this.rows.iterator();
 	}
 
-	public void setMaxrows() {
-		this.maxRows = true;
-	}
-
-	public boolean isMaxrows() {
-		return this.maxRows;
+	public void setMaxRows() {
+		setMaxRows(true);
 	}
 
 	public void setComplete() {
-		this.complete = true;
+		setComplete(true);
 	}
 
-	public boolean isComplete() {
-		return this.complete;
-	}
 }

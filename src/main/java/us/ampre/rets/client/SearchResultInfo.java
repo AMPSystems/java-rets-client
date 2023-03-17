@@ -11,7 +11,7 @@ public interface SearchResultInfo {
 	public String[] getColumns() throws RetsException;
 
 	/** @throws IllegalStateException */
-	public boolean isMaxrows() throws RetsException, IllegalStateException;
+	public boolean isMaxRows() throws RetsException, IllegalStateException;
 
 	/** 
 	 * Indicates that processing of this search 

@@ -2,6 +2,7 @@ package us.ampre.rets.client;
 
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import us.ampre.rets.common.metadata.Metadata;
@@ -306,6 +307,9 @@ public class RetsSession {
 		}
 	}
 
+	@Getter
+	private String xmlResponse = null;
+
 	/**
 	 * Will perform a search as requested and return a filled
 	 * SearchResult object.  This method caches all result information
@@ -333,6 +337,7 @@ public class RetsSession {
 	 */
 	public void search(SearchRequest req, SearchResultCollector collector) throws RetsException {
 		this.transport.search(req, collector);
+		xmlResponse = this.transport.getXmlResponse();
 	}
 
 	/**
@@ -342,7 +347,9 @@ public class RetsSession {
 	 * @param processor the result object that will process the data
 	 */
 	public SearchResultSet search(SearchRequest req, SearchResultProcessor processor) throws RetsException {
-		return this.transport.search(req, processor);
+		SearchResultSet srs = this.transport.search(req, processor);
+		xmlResponse = transport.getXmlResponse();
+		return srs;
 	}
 
 	/** 

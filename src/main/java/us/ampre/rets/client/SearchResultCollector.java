@@ -12,7 +12,7 @@ public interface SearchResultCollector {
 
 	public boolean addRow(String[] row);
 
-	public void setMaxrows();
+	public void setMaxRows();
 
 	public void setComplete();
 }

@@ -1,9 +1,15 @@
 package us.ampre.rets.client;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -21,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
  * and version negotiation.
  *
  */
+@Slf4j
 public class RetsTransport {
 	private static final String RETS_SESSION_ID_HEADER = "RETS-Session-ID"; // TODO spec says hyphen, Marketlinx uses an underscore
 
@@ -234,9 +241,22 @@ public class RetsTransport {
 	 */
 	public void search(SearchRequest req, SearchResultCollector collector) throws RetsException {
 		RetsHttpResponse httpResponse = doRequest(req);
-		new SearchResultHandler(collector).parse(httpResponse.getInputStream(), httpResponse.getCharset());
+		InputStream is = saveToString(httpResponse.getInputStream());
+		new SearchResultHandler(collector).parse(is, httpResponse.getCharset());
 	}
 
+	@Getter
+	private String xmlResponse = null;
+	protected InputStream saveToString(InputStream inputStream) {
+		try {
+			byte[] bytes = inputStream.readAllBytes();
+			xmlResponse = new String(bytes);
+			return new ByteArrayInputStream(bytes);
+		} catch (IOException io) {
+			log.warn("Unable to read input stream.", io);
+			return inputStream;
+		}
+	}
 	/**
 	 * Override processing of the search completely by providing a 
 	 * SearchResultProcessor to process the results of the Search.
@@ -246,6 +266,7 @@ public class RetsTransport {
 	 */
 	public SearchResultSet search(SearchRequest req, SearchResultProcessor processor) throws RetsException {
 		RetsHttpResponse httpResponse = doRequest(req);
+		log.debug("RetsHttpResponse Code = [{}]", httpResponse.getResponseCode());
 		return processor.parse(httpResponse.getInputStream());
 	}
 

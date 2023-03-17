@@ -206,7 +206,7 @@ class StreamingSearchResult implements SearchResultSet, SearchResultCollector {
 		notifyAll();
 	}
 
-	public synchronized void setMaxrows() {
+	public synchronized void setMaxRows() {
 		this.mMaxrows = true;
 		pushState(COMPLETE);
 		notifyAll();
@@ -256,7 +256,7 @@ class StreamingSearchResult implements SearchResultSet, SearchResultCollector {
 		return this.columns;
 	}
 
-	public synchronized boolean isMaxrows() throws RetsException {
+	public synchronized boolean isMaxRows() throws RetsException {
 		checkException();
 
 		if (!isComplete())
