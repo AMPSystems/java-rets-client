@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
@@ -25,6 +26,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
+@Slf4j
 public class CommonsHttpClient extends RetsHttpClient {
 	private static final int DEFAULT_TIMEOUT = 300000;
 	private static final String RETS_VERSION = "RETS-Version";
@@ -99,6 +101,7 @@ public class CommonsHttpClient extends RetsHttpClient {
 		if (args != null) {
 			url = url + "?" + args;
 		}
+		log.debug("URL = [{}]", url);
 		HttpGet method = new HttpGet(url);
 		return execute(method, request.getHeaders());
 	}
