@@ -17,7 +17,6 @@ public class SearchResultImpl implements SearchResult, SearchResultCollector {
 	private String[] columnNames;
 	@Getter
 	private Hashtable<String, Integer> columnMap;
-	@Getter
 	@Setter
 	private int count;
 	@Getter

@@ -57,7 +57,7 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
 			return this.hasNext.booleanValue();
 
 		try {
-			this.hasNext = new Boolean(this.getHaveNext());
+			this.hasNext = Boolean.valueOf(this.getHaveNext());
 			return this.hasNext.booleanValue();
 		} catch (IOException e) {
 			throw new RuntimeException(e);

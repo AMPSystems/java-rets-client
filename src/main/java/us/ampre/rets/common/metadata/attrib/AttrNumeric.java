@@ -13,7 +13,7 @@ import us.ampre.rets.common.metadata.MetaParseException;
 public class AttrNumeric implements AttrType<Integer> {
 	public Integer parse(String value, boolean strict) throws MetaParseException {
 		try {
-			return new Integer(value);
+			return Integer.valueOf(value);
 		} catch (NumberFormatException e) {
 			if( strict ) 
 				throw new MetaParseException(e);

@@ -56,9 +56,9 @@ public class ReplyCode {
 	private ReplyCode(int value, String message) {
 		this.mValue = value;
 		this.mMessage = message;
-		if (CODES.containsValue(new Integer(value))) 
+		if (CODES.containsValue(Integer.valueOf(value)))
 			throw new IllegalArgumentException(String.format("value already used: %s ( %s ) ",value,message));
-		CODES.put(new Integer(value), this);
+		CODES.put(Integer.valueOf(value), this);
 	}
 
 
@@ -90,7 +90,7 @@ public class ReplyCode {
 	}
 
 	public static ReplyCode fromValue(int value) {
-		ReplyCode replyCode = CODES.get(new Integer(value));
+		ReplyCode replyCode = CODES.get(Integer.valueOf(value));
 		if (replyCode != null) 
 			return replyCode;
 

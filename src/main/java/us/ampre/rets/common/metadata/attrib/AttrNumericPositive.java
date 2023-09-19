@@ -14,7 +14,7 @@ public class AttrNumericPositive implements AttrType<Integer> {
 	
 	public Integer parse(String value, boolean strict) throws MetaParseException {
 		try {
-			Integer integer = new Integer(value);
+			Integer integer = Integer.valueOf(value);
 			if (strict && integer < 1) throw new IllegalArgumentException(String.format("%s is not positive", value));
 			return integer;
 		} catch (Exception e) {

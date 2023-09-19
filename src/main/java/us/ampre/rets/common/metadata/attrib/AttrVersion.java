@@ -31,7 +31,7 @@ public class AttrVersion implements AttrType<Integer> {
 			throw new MetaParseException("Invalid version: " + value, e);
 		}
 		if ((major < 100) && (major >= 0) && (minor < 100) && (minor >= 0) && (release < 100000) && (release >= 0)) {
-			return new Integer(major * 10000000 + minor * 100000 + release);
+			return Integer.valueOf(major * 10000000 + minor * 100000 + release);
 		}
 		if( strict ) 
 			throw new MetaParseException("Invalid version: " + value);
