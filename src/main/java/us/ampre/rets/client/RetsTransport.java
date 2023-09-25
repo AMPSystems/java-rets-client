@@ -37,7 +37,7 @@ public class RetsTransport {
 	private RetsVersion version;
 	private boolean strict;
 	private NetworkEventMonitor monitor;
-	
+
 	private static final Log LOG = LogFactory.getLog(RetsTransport.class);
 
 	private static Map MONITOR_MSGS = new HashMap(){{

@@ -45,11 +45,13 @@ public class RetsApplication implements CommandLineRunner {
 		RetsVersion retsVersion = RetsVersion.RETS_1_7_2;
 		String loginUrl = retsProperties.getLoginUrl();
 
-		//Create a RetesSession with RetsHttpClient
+		//Create a RetsSession with RetsHttpClient
 		RetsSession session = new RetsSession(loginUrl, httpClient, retsVersion);
 
-		String username = retsProperties.getUsername();
-		String password = retsProperties.getPassword();
+		String username 			= retsProperties.getUsername();
+		String password 			= retsProperties.getPassword();
+		String userAgent 			= retsProperties.getUserAgent();
+		String userAgentPassword 	= retsProperties.getUserAgentPassword();
 
 		//Set method as GET or POST
 		session.setMethod("POST");
@@ -70,21 +72,18 @@ public class RetsApplication implements CommandLineRunner {
 				log.info("  Resource: {} / {}", resource.getResourceID(), resource.getDescription());
 				for(MClass classification: resource.getMClasses()) {
 					log.info("    Class: {} / {}", classification.getClassName(), classification.getDescription());
-						for (MTable mTable : classification.getMTables()) {
-							log.info("      Table: {} / {}", mTable.getSystemName(), mTable.getStandardName());
-						}
+					for (MTable mTable : classification.getMTables()) {
+						log.info("      Table: {} / {}", mTable.getSystemName(), mTable.getStandardName());
+					}
 				}
 			}
-		}
-		catch (RetsException e) {
+		} catch (RetsException e) {
 			log.error("Exception traversing metadata tree.", e);
-		}
-		finally {
+		} finally {
 			if(session != null) {
 				try {
 					session.logout();
-				}
-				catch(RetsException e) {
+				} catch(RetsException e) {
 					log.error("Exception ending RETS session/logout.", e);
 				}
 			}

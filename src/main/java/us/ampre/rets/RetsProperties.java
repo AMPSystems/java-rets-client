@@ -27,4 +27,8 @@ public class RetsProperties {
     private String password = null;
     @Default
     private String loginUrl = null;
+    @Default
+    private String userAgent = null;
+    @Default
+    private String userAgentPassword = null;
 }
