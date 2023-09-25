@@ -1,12 +1,15 @@
 package us.ampre.rets.client;
 
+import java.security.MessageDigest;
 import java.util.Map;
 
 import lombok.Getter;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import us.ampre.rets.common.metadata.Metadata;
 import us.ampre.rets.common.metadata.MetadataException;
+import org.apache.commons.codec.*;
 
 /**
  * RetsSession is the core class of the rets.client package.
@@ -15,13 +18,18 @@ public class RetsSession {
 	public static final String METADATA_TABLES = "metadata_tables.xml";
 	public static final String RETS_CLIENT_VERSION = "1.5";//change default version
 
+	public static final String RETS_UA_Authorization = "RETS-UA-Authorization";
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 	private static final Log LOG = LogFactory.getLog(RetsSession.class);
-	private static String sUserAgent = "crt-rets-client/" + RETS_CLIENT_VERSION;
+	//private static String sUserAgent = "crt-rets-client/" + RETS_CLIENT_VERSION;
 
 	private CapabilityUrls capabilityUrls;
 	private RetsHttpClient httpClient;
 	private RetsTransport transport;
 	private String sessionId;
+
+	private String userAgent = "crt-rets-client/" + RETS_CLIENT_VERSION;;
+	private String userAgentPassword;
 
 
 	/**
@@ -74,7 +82,7 @@ public class RetsSession {
 	 * @param retsVersion The RetsVersion used by this RetsSession.
 	 */
 	public RetsSession(String loginUrl, RetsHttpClient httpClient, RetsVersion retsVersion) {
-		this(loginUrl, httpClient, retsVersion, sUserAgent,false);
+		this(loginUrl, httpClient, retsVersion, null,false);
 	}
 
 	/**
@@ -94,7 +102,33 @@ public class RetsSession {
 
 		this.httpClient = httpClient;
 		this.transport = new RetsTransport(httpClient, this.capabilityUrls, retsVersion, strict);
-		this.httpClient.addDefaultHeader("User-Agent", userAgent);
+		if (userAgent == null){
+			this.httpClient.addDefaultHeader("User-Agent", userAgent);
+		}
+
+	}
+
+	/**
+	 * RetsSession with UserAgent authentication in header.
+	 *
+	 * @param loginUrl
+	 * @param httpClient
+	 * @param retsVersion
+	 * @param userAgentUsername
+	 * @param strict
+	 * @param userAgentPassword
+	 */
+	public RetsSession(String loginUrl, RetsHttpClient httpClient, RetsVersion retsVersion, String userAgentUsername, String userAgentPassword, boolean strict) {
+		this.capabilityUrls = new CapabilityUrls();
+		this.capabilityUrls.setLoginUrl(loginUrl);
+
+		this.httpClient = httpClient;
+		this.transport = new RetsTransport(httpClient, this.capabilityUrls, retsVersion, strict);
+		if (userAgent == null){
+			this.httpClient.addDefaultHeader("User-Agent", this.calculateUAHeader(userAgentUsername, userAgentPassword));
+		}
+
+
 	}
 
 	/**
@@ -144,8 +178,8 @@ public class RetsSession {
 	 * @param userAgent Default User-Agent value to use for all RetsSession
 	 * objects created in the future.
 	 */
-	public static void setUserAgent(String userAgent) {
-		sUserAgent = userAgent;
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
 	}
 
 	public String getLoginUrl() {
@@ -281,15 +315,67 @@ public class RetsSession {
 
 		LoginRequest request = new LoginRequest();
 		request.setBrokerCode(brokerCode, brokerBranch);
-
 		LoginResponse response = this.transport.login(request);
 		this.capabilityUrls = response.getCapabilityUrls();
 		this.transport.setCapabilities(this.capabilityUrls);
 		this.setSessionId(response.getSessionId());
 		this.getAction();
-
 		return response;
 	}
+
+	/**
+	 *
+	 * @param userName
+	 * @param password
+	 * @param userAgentPassword
+	 * @return
+	 * @throws RetsException
+	 */
+//	public LoginResponse login(String userName, String password, String userAgentPassword) throws RetsException {
+//		this.userAgentPassword = userAgentPassword;
+//		this.httpClient.setUserCredentials(userName, password);
+//		if (userAgentPassword != null) {
+//			this.httpClient.addDefaultHeader(RETS_UA_Authorization, CalculateUAHeader(userAgent, userAgentPassword));
+//		}
+//		LoginRequest request = new LoginRequest();
+//
+//		LoginResponse response = this.transport.login(request);
+//		this.capabilityUrls = response.getCapabilityUrls();
+//		this.transport.setCapabilities(this.capabilityUrls);
+//		this.setSessionId(response.getSessionId());
+//		this.getAction();
+//
+//		return response;
+//	}
+
+	/**
+	 * Create a user-agent authentication header
+	 * @param userAgent
+	 * @param userAgentPassword
+	 * @return
+	 */
+	protected String calculateUAHeader(String userAgent, String userAgentPassword){
+		String version = getRetsVersion().toString();
+		String sessionId = getSessionId();
+		String header = null;
+
+	String a1 = userAgent + ":" + userAgentPassword;
+	try {
+		MessageDigest md5 = MessageDigest.getInstance("MD5");
+		md5.update(a1.getBytes());
+		byte[] digest = md5.digest();
+		a1 = Hex.encodeHex(digest).toString();
+		//there is no requestid
+		header = a1 + "::" + sessionId + ":" + version;
+		md5.reset();
+		md5.update(header.getBytes());
+		digest = md5.digest();
+		header = Hex.encodeHex(digest).toString();
+		return header;
+	}catch(Exception e){
+		return "Could not create MD5 hash.";
+	}
+}
 
 	/**
 	 * Log out of the current session.  Another login _may_ re-establish a new connection
