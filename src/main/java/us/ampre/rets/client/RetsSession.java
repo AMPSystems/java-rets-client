@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.util.Map;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +15,7 @@ import org.apache.commons.codec.*;
 /**
  * RetsSession is the core class of the rets.client package.
  */
+@Slf4j
 public class RetsSession {
 	public static final String METADATA_TABLES = "metadata_tables.xml";
 	public static final String RETS_CLIENT_VERSION = "1.5";//change default version
@@ -102,7 +104,7 @@ public class RetsSession {
 
 		this.httpClient = httpClient;
 		this.transport = new RetsTransport(httpClient, this.capabilityUrls, retsVersion, strict);
-		if (userAgent == null){
+		if (userAgent != null){
 			this.httpClient.addDefaultHeader("User-Agent", userAgent);
 		}
 
@@ -114,19 +116,21 @@ public class RetsSession {
 	 * @param loginUrl
 	 * @param httpClient
 	 * @param retsVersion
-	 * @param userAgentUsername
+	 * @param userAgent
 	 * @param strict
 	 * @param userAgentPassword
 	 */
-	public RetsSession(String loginUrl, RetsHttpClient httpClient, RetsVersion retsVersion, String userAgentUsername, String userAgentPassword, boolean strict) {
+	public RetsSession(String loginUrl, RetsHttpClient httpClient, RetsVersion retsVersion, String userAgent, String userAgentPassword, boolean strict) {
 		this.capabilityUrls = new CapabilityUrls();
 		this.capabilityUrls.setLoginUrl(loginUrl);
 
 		this.httpClient = httpClient;
 		this.transport = new RetsTransport(httpClient, this.capabilityUrls, retsVersion, strict);
-		if (userAgent == null){
-			this.httpClient.addDefaultHeader("User-Agent", this.calculateUAHeader(userAgentUsername, userAgentPassword));
-		}
+		this.userAgent = userAgent;
+		this.userAgentPassword = userAgentPassword;
+//		if (userAgent != null){
+//			this.httpClient.addDefaultHeader("User-Agent", this.calculateUAHeader(userAgentUsername, userAgentPassword));
+//		}
 
 
 	}
@@ -315,6 +319,13 @@ public class RetsSession {
 
 		LoginRequest request = new LoginRequest();
 		request.setBrokerCode(brokerCode, brokerBranch);
+		if ((this.userAgentPassword != null) && (this.userAgent != null)) {
+			String value = calculateUAHeader();
+			if (value != null) {
+				log.debug("Setting RETS UA header to [{}]", value);
+				request.setHeader(RETS_UA_Authorization, value);
+			}
+		}
 		LoginResponse response = this.transport.login(request);
 		this.capabilityUrls = response.getCapabilityUrls();
 		this.transport.setCapabilities(this.capabilityUrls);
@@ -350,32 +361,41 @@ public class RetsSession {
 
 	/**
 	 * Create a user-agent authentication header
-	 * @param userAgent
-	 * @param userAgentPassword
 	 * @return
 	 */
-	protected String calculateUAHeader(String userAgent, String userAgentPassword){
-		String version = getRetsVersion().toString();
-		String sessionId = getSessionId();
+	protected String calculateUAHeader(){
 		String header = null;
 
-	String a1 = userAgent + ":" + userAgentPassword;
-	try {
-		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		md5.update(a1.getBytes());
-		byte[] digest = md5.digest();
-		a1 = Hex.encodeHex(digest).toString();
-		//there is no requestid
-		header = a1 + "::" + sessionId + ":" + version;
-		md5.reset();
-		md5.update(header.getBytes());
-		digest = md5.digest();
-		header = Hex.encodeHex(digest).toString();
-		return header;
-	}catch(Exception e){
-		return "Could not create MD5 hash.";
+		try {
+			String a1 = this.userAgent + ":" + this.userAgentPassword;
+			log.debug("a1 = [{}]", a1);
+			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			md5.update(a1.getBytes());
+			byte[] digest = md5.digest();
+			String a1Hex = bytesToHex(digest);
+			//there is no requestid
+			if (this.sessionId == null) this.sessionId = "";
+			header = a1Hex + "::" + this.sessionId + ":" + this.getRetsVersion().toString();
+			log.debug("header = [{}]", header);
+			md5.reset();
+			md5.update(header.getBytes());
+			digest = md5.digest();
+			header = bytesToHex(digest);
+			log.debug("Calculated UA Header value of [{}]", header);
+			return "Digest " + header;
+		} catch (Exception e) {
+			log.error("Could not create UA Header value.", e);
+			return "Could not create MD5 hash.";
+		}
 	}
-}
+
+	private  String bytesToHex(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (byte b : bytes) {
+			sb.append(String.format("%02x", b));
+		}
+		return sb.toString();
+	}
 
 	/**
 	 * Log out of the current session.  Another login _may_ re-establish a new connection

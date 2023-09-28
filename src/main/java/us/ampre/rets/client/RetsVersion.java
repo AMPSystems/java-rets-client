@@ -13,6 +13,7 @@ public class RetsVersion implements Serializable {
 	public static final RetsVersion RETS_16 = new RetsVersion(1, 6, 0, 0);
 	public static final RetsVersion RETS_17 = new RetsVersion(1, 7, 0, 0);
 	public static final RetsVersion RETS_1_7_2 = new RetsVersion(1, 7, 2, 0);
+	public static final RetsVersion RETS_18 = new RetsVersion(1, 8, 0, 0);
 	public static final RetsVersion DEFAULT = RETS_1_7_2;
 
 	private int mMajor;
