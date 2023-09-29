@@ -20,8 +20,6 @@ public class RetsSession {
 	public static final String METADATA_TABLES = "metadata_tables.xml";
 	public static final String RETS_CLIENT_VERSION = "1.5";//change default version
 
-	public static final String RETS_UA_Authorization = "RETS-UA-Authorization";
-	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 	private static final Log LOG = LogFactory.getLog(RetsSession.class);
 	//private static String sUserAgent = "crt-rets-client/" + RETS_CLIENT_VERSION;
 
@@ -184,6 +182,9 @@ public class RetsSession {
 	 */
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
+		if (this.httpClient != null) {
+			this.httpClient.addDefaultHeader(CommonsHttpClient.USER_AGENT, this.userAgent);
+		}
 	}
 
 	public String getLoginUrl() {
@@ -319,82 +320,12 @@ public class RetsSession {
 
 		LoginRequest request = new LoginRequest();
 		request.setBrokerCode(brokerCode, brokerBranch);
-		if ((this.userAgentPassword != null) && (this.userAgent != null)) {
-			String value = calculateUAHeader();
-			if (value != null) {
-				log.debug("Setting RETS UA header to [{}]", value);
-				request.setHeader(RETS_UA_Authorization, value);
-			}
-		}
 		LoginResponse response = this.transport.login(request);
 		this.capabilityUrls = response.getCapabilityUrls();
 		this.transport.setCapabilities(this.capabilityUrls);
 		this.setSessionId(response.getSessionId());
 		this.getAction();
 		return response;
-	}
-
-	/**
-	 *
-	 * @param userName
-	 * @param password
-	 * @param userAgentPassword
-	 * @return
-	 * @throws RetsException
-	 */
-//	public LoginResponse login(String userName, String password, String userAgentPassword) throws RetsException {
-//		this.userAgentPassword = userAgentPassword;
-//		this.httpClient.setUserCredentials(userName, password);
-//		if (userAgentPassword != null) {
-//			this.httpClient.addDefaultHeader(RETS_UA_Authorization, CalculateUAHeader(userAgent, userAgentPassword));
-//		}
-//		LoginRequest request = new LoginRequest();
-//
-//		LoginResponse response = this.transport.login(request);
-//		this.capabilityUrls = response.getCapabilityUrls();
-//		this.transport.setCapabilities(this.capabilityUrls);
-//		this.setSessionId(response.getSessionId());
-//		this.getAction();
-//
-//		return response;
-//	}
-
-	/**
-	 * Create a user-agent authentication header
-	 * @return
-	 */
-	protected String calculateUAHeader(){
-		String header = null;
-
-		try {
-			String a1 = this.userAgent + ":" + this.userAgentPassword;
-			log.debug("a1 = [{}]", a1);
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
-			md5.update(a1.getBytes());
-			byte[] digest = md5.digest();
-			String a1Hex = bytesToHex(digest);
-			//there is no requestid
-			if (this.sessionId == null) this.sessionId = "";
-			header = a1Hex + "::" + this.sessionId + ":" + this.getRetsVersion().toString();
-			log.debug("header = [{}]", header);
-			md5.reset();
-			md5.update(header.getBytes());
-			digest = md5.digest();
-			header = bytesToHex(digest);
-			log.debug("Calculated UA Header value of [{}]", header);
-			return "Digest " + header;
-		} catch (Exception e) {
-			log.error("Could not create UA Header value.", e);
-			return "Could not create MD5 hash.";
-		}
-	}
-
-	private  String bytesToHex(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for (byte b : bytes) {
-			sb.append(String.format("%02x", b));
-		}
-		return sb.toString();
 	}
 
 	/**

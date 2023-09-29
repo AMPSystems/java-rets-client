@@ -32,8 +32,8 @@ public class CommonsHttpClient extends RetsHttpClient {
 	private static final String RETS_VERSION = "RETS-Version";
 	private static final String RETS_SESSION_ID = "RETS-Session-ID";
 	private static final String RETS_REQUEST_ID = "RETS-Request-ID";
-	private static final String USER_AGENT = "User-Agent";
-	private static final String RETS_UA_AUTH_HEADER = "RETS-UA-Authorization";
+	public static final String USER_AGENT = "User-Agent";
+	public static final String RETS_UA_AUTH_HEADER = "RETS-UA-Authorization";
 	private static final String ACCEPT_ENCODING = "Accept-Encoding";
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 	public static final String DEFLATE_ENCODINGS = "gzip,deflate";
@@ -65,7 +65,11 @@ public class CommonsHttpClient extends RetsHttpClient {
 	public CommonsHttpClient() {
 		this(new DefaultHttpClient(defaultConnectionManager(Integer.MAX_VALUE, Integer.MAX_VALUE), defaultParams(DEFAULT_TIMEOUT)), null, true);
 	}
-	
+
+	public CommonsHttpClient(String userAgentPassword, boolean gzip) {
+		this(new DefaultHttpClient(defaultConnectionManager(Integer.MAX_VALUE, Integer.MAX_VALUE), defaultParams(DEFAULT_TIMEOUT)), userAgentPassword, gzip);
+	}
+
 	public CommonsHttpClient(int timeout, String userAgentPassword, boolean gzip) {
 		this(new DefaultHttpClient(defaultConnectionManager(Integer.MAX_VALUE, Integer.MAX_VALUE), defaultParams(timeout)), userAgentPassword, gzip);
 	}

@@ -37,6 +37,10 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 repositories {
     // AMP Nexus Repos
     maven {
