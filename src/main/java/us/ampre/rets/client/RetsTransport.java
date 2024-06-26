@@ -288,6 +288,7 @@ public class RetsTransport {
 	}
 
 	public Metadata getMetadata(String location) throws RetsException {
+		log.debug("Querying for metadata. Location = [{}]", location);
 		boolean compact = Boolean.getBoolean("rets-client.metadata.compact");
 		GetMetadataRequest req = new GetMetadataRequest("SYSTEM", "*");
 		if (compact) {
@@ -326,6 +327,7 @@ public class RetsTransport {
 	}
 
 	public GetMetadataResponse getMetadata(GetMetadataRequest req) throws RetsException {
+		log.debug("Querying for metadata.");
 		RetsHttpResponse httpResponse = doRequest(req);
 		Object monitorobj = null;
 		monitorobj = this.monitor.eventStart("Parsing metadata");
