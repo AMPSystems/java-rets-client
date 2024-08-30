@@ -178,11 +178,11 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
 	}
 
 	public void startDocument() {
-		log.info("Start document");
+		log.trace("Start document");
 	}
 
 	public void endDocument() {
-		log.info("Document ended");
+		log.trace("Document ended");
 		this.collector.setComplete();
 	}
 
@@ -249,7 +249,7 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
 		String encoding = src.getEncoding();
 		if (encoding == null && (charset != null)){
 			encoding = charset;
-			log.warn("Charset from headers:" + charset + ". Setting as correct encoding for parsing");
+            log.trace("Charset from headers:{}. Setting as correct encoding for parsing", charset);
 			src.setEncoding(encoding);
 		}
 		try {

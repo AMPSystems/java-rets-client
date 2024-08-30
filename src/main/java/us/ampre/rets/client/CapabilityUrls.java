@@ -38,7 +38,7 @@ public class CapabilityUrls {
 			try {
 				String newurl = new URL(this.mUrl, url).toString();
 				if (!newurl.equals(url)) {
-					LOG.info("qualified " + capability + "  URL different: "
+					LOG.debug("qualified " + capability + "  URL different: "
 							+ url + " -> " + newurl);
 					url = newurl;
 				}

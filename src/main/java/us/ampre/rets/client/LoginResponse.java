@@ -133,7 +133,7 @@ public class LoginResponse extends KeyValueResponse {
 			if (key.substring(0, 2).equalsIgnoreCase("X-")) {
 				LOG.warn("Unknown experimental key: " + key + " -> " + value);
 			} else {
-				assertStrictWarning(LOG, "Invalid login response key: " + key + " -> " + value);
+				LOG.trace("Unknown login response key: " + key + " -> " + value);
 			}
 		}
 	}

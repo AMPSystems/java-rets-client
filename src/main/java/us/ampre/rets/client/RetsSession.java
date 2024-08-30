@@ -243,7 +243,7 @@ public class RetsSession {
 	private void getAction() throws RetsException {
 		String actionUrl = this.capabilityUrls.getActionUrl();
 		if (actionUrl == null) {
-			LOG.warn("No Action-URL available, skipping");
+			LOG.trace("No Action-URL available, skipping");
 			return;
 		}
 		GenericHttpRequest actionRequest = new GenericHttpRequest(actionUrl){
