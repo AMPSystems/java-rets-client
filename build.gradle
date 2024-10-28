@@ -18,21 +18,14 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     api 'jdom:jdom:1.1'
-    api 'commons-lang:commons-lang:2.6'
+    api 'org.apache.commons:commons-lang3:3.17.0'
     api 'commons-codec:commons-codec:1.16.0'
     api 'com.google.guava:guava:32.1.2-jre'
-    api 'org.apache.httpcomponents:httpclient:4.5.14'
-    api 'org.apache.httpcomponents:httpcore:4.4.16'
-
-//    implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.2.1'
-//    implementation group: 'org.apache.httpcomponents.core5', name: 'httpcore5-h2', version: '5.2.1'
-
+    api 'org.apache.httpcomponents.client5:httpclient5:5.4'
+    api 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
     compileOnly 'org.projectlombok:lombok'
-
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
     annotationProcessor 'org.projectlombok:lombok'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'junit:junit:4.13.2'
 }
