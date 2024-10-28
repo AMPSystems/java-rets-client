@@ -31,7 +31,9 @@ public class RetsSession {
 	private String userAgent = "crt-rets-client/" + RETS_CLIENT_VERSION;;
 	private String userAgentPassword;
 
-
+	public RetsHttpClient getRetsHttpClient() {
+		return httpClient;
+	}
 	/**
 	 * Creates a new <code>RetsSession</code> instance.
 	 * You must call login(user, pass) before attempting any other
