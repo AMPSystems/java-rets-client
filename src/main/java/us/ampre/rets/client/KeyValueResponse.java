@@ -40,7 +40,7 @@ abstract public class KeyValueResponse {
             int replyCode = NumberUtils.toInt(retsElement.getAttributeValue("ReplyCode"));
             this.mReplyCode = replyCode;
             if (!isValidReplyCode(replyCode)) {
-                throw new InvalidReplyCodeException(replyCode);
+                throw new InvalidReplyCodeException(replyCode, retsElement.getAttributeValue("ReplyText"));
             }
             Element capabilityContainer;
             if (RetsVersion.RETS_10.equals(mVersion)) {

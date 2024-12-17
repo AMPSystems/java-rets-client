@@ -37,7 +37,7 @@ public class GetMetadataResponse {
                 // No metadata is not an exceptional case
                 handleNoMetadataFound(retsElement);
             } else {
-                InvalidReplyCodeException e = new InvalidReplyCodeException(replyCode);
+                InvalidReplyCodeException e = new InvalidReplyCodeException(replyCode, retsElement.getAttributeValue("ReplyText"));
                 e.setRemoteMessage(retsElement.getAttributeValue(retsElement.getAttributeValue("ReplyText")));
                 throw e;
             }

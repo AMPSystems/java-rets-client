@@ -44,6 +44,16 @@ public class GetObjectResponse {
     private final boolean isMultipart;
     private boolean emptyResponse;
     private final boolean exhausted;
+    private int replyCode = -99;
+    private String replyText;
+
+    public String getReplyText() {
+        return replyCode + "-" + replyText;
+    }
+
+    public boolean isSuccessful() {
+        return replyCode == -99;
+    }
 
     public GetObjectResponse(Map<String, String> headers, InputStream in) throws RetsException {
         this.emptyResponse = false;
@@ -52,13 +62,12 @@ public class GetObjectResponse {
         this.isMultipart = getType().contains("multipart");
         this.inputStream = in;
 
-        boolean isXml = getType().equals("text/xml");
+        boolean isXml = getType().contains("text/xml");
         boolean containsContentId = headers.containsKey(SingleObjectResponse.CONTENT_ID);
         boolean nonMultiPartXmlWithoutContentId = !this.isMultipart && isXml && !containsContentId;
         boolean multiPartXml = this.isMultipart && isXml;
 
         if (multiPartXml || nonMultiPartXmlWithoutContentId) {
-            int replyCode;
             try {
                 this.emptyResponse = true;
                 SAXBuilder builder = new SAXBuilder();
@@ -66,11 +75,11 @@ public class GetObjectResponse {
                 Element root = mDocument.getRootElement();
                 if (root.getName().equals("RETS")) {
                     replyCode = NumberUtils.toInt(root.getAttributeValue("ReplyCode"));
-
+                    replyText = root.getAttributeValue("ReplyText");
                     if (ReplyCode.SUCCESS.equals(replyCode)) return;
                     if (ReplyCode.NO_OBJECT_FOUND.equals(replyCode)) return;
 
-                    throw new InvalidReplyCodeException(replyCode);
+                    throw new InvalidReplyCodeException(replyCode, replyText);
                 }
                 throw new RetsException("Malformed response [multipart=" + this.isMultipart + ", content-type=text/xml]. " +
                         "Content id did not exist in response and response was not valid RETS response.");

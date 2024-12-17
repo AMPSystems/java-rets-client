@@ -13,7 +13,7 @@ import org.jdom.input.SAXBuilder;
 public class ChangePasswordResponse {
 	public ChangePasswordResponse(InputStream stream) throws RetsException {
 		SAXBuilder builder = new SAXBuilder();
-		Document document = null;
+		Document document;
 		try {
 			document = builder.build(stream);
 		} catch (Exception e) {
@@ -27,7 +27,7 @@ public class ChangePasswordResponse {
 		int replyCode = Integer.parseInt(rets.getAttributeValue("ReplyCode"));
 		if (replyCode != 0) {
 			InvalidReplyCodeException exception;
-			exception = new InvalidReplyCodeException(replyCode);
+			exception = new InvalidReplyCodeException(replyCode, rets.getAttributeValue("ReplyText"));
 			exception.setRemoteMessage(rets.getAttributeValue("ReplyText"));
 			throw exception;
 		}

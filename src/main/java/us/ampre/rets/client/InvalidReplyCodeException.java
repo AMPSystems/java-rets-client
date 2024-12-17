@@ -5,8 +5,9 @@ public class InvalidReplyCodeException extends RetsException {
     private String mMsg;
     private String mReqinfo;
 
-    public InvalidReplyCodeException(int replyCodeValue) {
+    public InvalidReplyCodeException(int replyCodeValue, String mMsg) {
         this.mReplyCode = ReplyCode.fromValue(replyCodeValue);
+        this.setRemoteMessage(mMsg);
     }
 
     public InvalidReplyCodeException(ReplyCode replyCode) {
