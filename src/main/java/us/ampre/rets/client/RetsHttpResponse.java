@@ -5,23 +5,21 @@ import java.io.InputStream;
 
 /**
  * Interface for retrieving useful header fields from a RETS HTTP response
- * 
- *
  */
 
 public interface RetsHttpResponse {
-	public int getResponseCode() throws RetsException;
+    int getResponseCode() throws RetsException;
 
-	public Map getHeaders() throws RetsException;
+    Map<String, String> getHeaders() throws RetsException;
 
-	public String getHeader(String hdr) throws RetsException;
+    String getHeader(String hdr) throws RetsException;
 
-	public String getCookie(String cookie) throws RetsException;
+    String getCookie(String cookie) throws RetsException;
 
-	public String getCharset() throws RetsException;
-	
-	public InputStream getInputStream() throws RetsException;
+    String getCharset() throws RetsException;
 
-	public Map getCookies() throws RetsException;
+    InputStream getInputStream() throws RetsException;
+
+    Map<String, String> getCookies() throws RetsException;
 
 }

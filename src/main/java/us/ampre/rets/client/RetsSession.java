@@ -1,11 +1,18 @@
 package us.ampre.rets.client;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Map;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import us.ampre.rets.common.metadata.Metadata;
 import us.ampre.rets.common.metadata.MetadataException;
 
@@ -343,6 +350,23 @@ public class RetsSession {
     public void search(SearchRequest req, SearchResultCollector collector) throws RetsException {
         this.transport.search(req, collector);
         xmlResponse = this.transport.getXmlResponse();
+        if (xmlResponse != null && xmlResponse.isEmpty() == false) {
+            try {
+                SAXBuilder builder = new SAXBuilder();
+                Document mDocument = builder.build(new StringReader(xmlResponse));
+                Element root = mDocument.getRootElement();
+                if ("RETS".equals(root.getName())) {
+                    int replyCode = NumberUtils.toInt(root.getAttributeValue("ReplyCode"));
+                    if (ReplyCode.SUCCESS.equals(replyCode)) {
+                        return;
+                    }
+                    throw new InvalidReplyCodeException(replyCode);
+                }
+                throw new RetsException("Malformed response [content-type=text/xml]. Root element is not 'RETS'.");
+            } catch (JDOMException | IOException e) {
+                throw new RetsException(e.getMessage());
+            }
+        }
     }
 
     /**

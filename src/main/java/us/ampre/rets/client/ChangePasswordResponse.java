@@ -27,7 +27,7 @@ public class ChangePasswordResponse {
 		int replyCode = Integer.parseInt(rets.getAttributeValue("ReplyCode"));
 		if (replyCode != 0) {
 			InvalidReplyCodeException exception;
-			exception = new InvalidReplyCodeException(replyCode, rets.getAttributeValue("ReplyText"));
+			exception = new InvalidReplyCodeException(replyCode);
 			exception.setRemoteMessage(rets.getAttributeValue("ReplyText"));
 			throw exception;
 		}

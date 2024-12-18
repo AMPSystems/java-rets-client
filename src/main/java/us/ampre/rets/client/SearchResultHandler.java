@@ -68,9 +68,9 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
                                 return;
 
                             if (name.equals("RETS"))
-                                this.invalidReplyCodeHandler.invalidRetsReplyCode(replyCode, replyText);
+                                this.invalidReplyCodeHandler.invalidRetsReplyCode(replyCode);
                             else
-                                this.invalidReplyCodeHandler.invalidRetsStatusReplyCode(replyCode, replyText);
+                                this.invalidReplyCodeHandler.invalidRetsStatusReplyCode(replyCode);
                         } catch (InvalidReplyCodeException e) {
                             String text = atts.getValue("", "ReplyText");
                             e.setRemoteMessage(text);

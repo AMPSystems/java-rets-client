@@ -4,13 +4,12 @@ final class TestInvalidReplyCodeHandler implements InvalidReplyCodeHandler {
     private int replyCode;
     private String replyText;
 
-    public void invalidRetsReplyCode(int code, String text) throws InvalidReplyCodeException {
-        throw new InvalidReplyCodeException(code, text);
+    public void invalidRetsReplyCode(int code) throws InvalidReplyCodeException {
+        throw new InvalidReplyCodeException(code);
     }
 
-    public void invalidRetsStatusReplyCode(int code, String text) {
+    public void invalidRetsStatusReplyCode(int code) {
         this.replyCode = code;
-        this.replyText = text;
     }
 
     public int getReplyCode() {

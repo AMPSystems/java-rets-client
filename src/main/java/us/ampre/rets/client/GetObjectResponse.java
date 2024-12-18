@@ -79,7 +79,7 @@ public class GetObjectResponse {
                     if (ReplyCode.SUCCESS.equals(replyCode)) return;
                     if (ReplyCode.NO_OBJECT_FOUND.equals(replyCode)) return;
 
-                    throw new InvalidReplyCodeException(replyCode, replyText);
+                    throw new InvalidReplyCodeException(replyCode);
                 }
                 throw new RetsException("Malformed response [multipart=" + this.isMultipart + ", content-type=text/xml]. " +
                         "Content id did not exist in response and response was not valid RETS response.");
