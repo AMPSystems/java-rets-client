@@ -2,6 +2,8 @@ package us.ampre.rets.client;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import us.ampre.rets.client.exceptions.InvalidArgumentException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 public class GetMetadataRequest extends VersionInsensitiveRequest {
     private static final int COMPACT_FORMAT = 0;

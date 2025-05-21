@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.RetsException;
+
 /**
  * Interface that describes high level information
  * about the results of a search.

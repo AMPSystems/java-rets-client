@@ -15,6 +15,8 @@ import org.jdom.input.SAXBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 abstract public class KeyValueResponse {
     protected static final String CRLF = "\r\n";

@@ -64,7 +64,7 @@ public class ReplyCode {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof ReplyCode)) {
+		if ((o instanceof ReplyCode) == false) {
 			return false;
 		}
 

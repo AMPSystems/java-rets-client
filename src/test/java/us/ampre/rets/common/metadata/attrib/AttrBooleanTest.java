@@ -1,46 +1,42 @@
 package us.ampre.rets.common.metadata.attrib;
 
+import org.junit.jupiter.api.Test;
 import us.ampre.rets.common.metadata.AttrType;
 import us.ampre.rets.common.metadata.MetaParseException;
 
-public class AttrBooleanTest
-    extends AttrTypeTest
-{
-    public void testBoolean() throws Exception
-    {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+class AttrBooleanTest extends AttrTypeTest {
+
+    @Test
+    void testBoolean() throws Exception {
         String[] trues = {"true", "1", "TrUe", "Y"};
-        String[] falses = {"false", "FALSE","0", "", "N"};
+        String[] falses = {"false", "FALSE", "0", "", "N"};
         String[] exceptions = {"weird", "#(*&", "2", "falze"};
 
-
         AttrType parser = new AttrBoolean();
-        assertEquals("Wrong Class returned", Boolean.class, parser.getType());
-        for (int i = 0; i < trues.length; i++)
-        {
-            String input = trues[i];
-            boolean value = ((Boolean)parser.parse(input,true)).booleanValue();
-            assertTrue("Expected true return for " + input, value);
+        assertEquals(Boolean.class, parser.getType());
+        for (String input : trues) {
+            boolean value = ((Boolean) parser.parse(input, true)).booleanValue();
+            assertTrue(value, "Expected true return for " + input);
         }
-        for (int i = 0; i < falses.length; i++)
-        {
-            String input = falses[i];
-            boolean value = ((Boolean)parser.parse(input,true)).booleanValue();
-            assertFalse("Expected false return for " + input, value);
-
+        for (String input : falses) {
+            boolean value = ((Boolean) parser.parse(input, true)).booleanValue();
+            assertFalse(value, "Expected false return for " + input);
         }
-        for (int i = 0; i < exceptions.length; i++)
-        {
-            String input = exceptions[i];
+        for (String input : exceptions) {
             assertParseException(parser, input);
         }
     }
 
-    public void testBooleanOutput() throws MetaParseException
-    {
+    @Test
+    void testBooleanOutput() throws MetaParseException {
         AttrBoolean parser = new AttrBoolean();
-        Boolean output = parser.parse("true",true);
+        Boolean output = parser.parse("true", true);
         assertEquals("1", parser.render(output));
-        output = parser.parse("false",true);
+        output = parser.parse("false", true);
         assertEquals("0", parser.render(output));
     }
 }

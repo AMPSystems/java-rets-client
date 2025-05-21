@@ -1,4 +1,6 @@
-package us.ampre.rets.client;
+package us.ampre.rets.client.exceptions;
+
+import us.ampre.rets.client.ReplyCode;
 
 public class InvalidReplyCodeException extends RetsException {
     private final ReplyCode mReplyCode;

@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import us.ampre.rets.client.exceptions.BrokerCodeRequiredException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 public class LoginResponse extends KeyValueResponse {
     private static final String BROKER_KEY = "Broker";
@@ -77,7 +79,7 @@ public class LoginResponse extends KeyValueResponse {
     public void parse(InputStream stream, RetsVersion version) throws RetsException {
         super.parse(stream, version);
         if (ReplyCode.BROKER_CODE_REQUIRED.equals(this.mReplyCode)) {
-            throw new BrokerCodeRequredException(this.brokerCodes);
+            throw new BrokerCodeRequiredException(this.brokerCodes);
         }
     }
 

@@ -8,6 +8,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import us.ampre.rets.client.exceptions.RetsException;
 
 public class ChangePasswordRequest extends VersionInsensitiveRequest {
 	public ChangePasswordRequest(String username, String oldPassword, String newPassword) throws RetsException {

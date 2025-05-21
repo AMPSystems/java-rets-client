@@ -3,7 +3,7 @@ package us.ampre.rets.examples;
 import java.net.MalformedURLException;
 
 import us.ampre.rets.client.CommonsHttpClient;
-import us.ampre.rets.client.RetsException;
+import us.ampre.rets.client.exceptions.RetsException;
 import us.ampre.rets.client.RetsHttpClient;
 import us.ampre.rets.client.RetsSession;
 import us.ampre.rets.client.RetsVersion;

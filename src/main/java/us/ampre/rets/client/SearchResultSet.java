@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.RetsException;
+
 /**
  * Iterator style interface for processing the results
  * of a RETS search a single time.  Information about the

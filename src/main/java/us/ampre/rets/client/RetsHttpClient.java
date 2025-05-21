@@ -5,6 +5,7 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import us.ampre.rets.client.exceptions.RetsException;
 
 import java.io.IOException;
 import java.util.HashMap;

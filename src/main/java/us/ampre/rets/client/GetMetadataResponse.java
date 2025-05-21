@@ -10,6 +10,8 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 import us.ampre.rets.common.metadata.MetaObject;
 import us.ampre.rets.common.metadata.JDomCompactBuilder;
 import us.ampre.rets.common.metadata.MetadataException;

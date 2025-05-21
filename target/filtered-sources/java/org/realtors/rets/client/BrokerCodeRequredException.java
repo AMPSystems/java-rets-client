@@ -16,10 +16,10 @@ import java.util.List;
  * dbt is lame and hasn't overridden the default
  * javadoc string.
  */
-public class BrokerCodeRequredException extends RetsException {
+public class BrokerCodeRequiredException extends RetsException {
     private final List mCodeList;
 
-    public BrokerCodeRequredException(Collection codes) {
+    public BrokerCodeRequiredException(Collection codes) {
         this.mCodeList = Collections.unmodifiableList(new ArrayList(codes));
     }
 

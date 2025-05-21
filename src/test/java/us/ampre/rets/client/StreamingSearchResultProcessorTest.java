@@ -1,11 +1,17 @@
 package us.ampre.rets.client;
 
+import org.junit.jupiter.api.Test;
+
 import java.io.Reader;
 import java.io.StringReader;
 
-import junit.framework.TestCase;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 
-public class StreamingSearchResultProcessorTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
+
+class StreamingSearchResultProcessorTest {
+
 	protected SearchResultProcessor createProcessor(InvalidReplyCodeHandler invalidReplyCodeHandler) {
 		StreamingSearchResultProcessor streamingSearchResultProcessor = new StreamingSearchResultProcessor(1, 0);
 		if (invalidReplyCodeHandler != null)
@@ -23,136 +29,120 @@ public class StreamingSearchResultProcessorTest extends TestCase {
 		return processor.parse(source);
 	}
 
-	public void testSmallResult() throws RetsException {
+	@Test
+	void testSmallResult() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.GOOD_SMALL_TEST);
 		String[] columns = result.getColumns();
 		assertNotNull(columns);
-		assertEquals("column headers count wrong", 1, columns.length);
-		assertEquals("bad column header", "Column1", columns[0]);
+		assertEquals(1, columns.length, "column headers count wrong");
+		assertEquals("Column1", columns[0], "bad column header");
 
 		if (result.getCount() != -1)
-			assertEquals("wrong row count", 1, result.getCount());
+			assertEquals(1, result.getCount(), "wrong row count");
 
-		assertTrue("iterator should have more", result.hasNext());
+		assertTrue(result.hasNext(), "iterator should have more");
 		String[] row = result.next();
 
-		assertEquals("wrong row width", 1, row.length);
-		assertEquals("wrong row data", "Data1", row[0]);
+		assertEquals(1, row.length, "wrong row width");
+		assertEquals("Data1", row[0], "wrong row data");
 
-		assertFalse("rows should be exhausted", result.hasNext());
-		assertFalse("max rows wrong", result.isMaxRows());
-		assertTrue("search not complete", result.isComplete());
+		assertFalse(result.hasNext(), "rows should be exhausted");
+		assertFalse(result.isMaxRows(), "max rows wrong");
+		assertTrue(result.isComplete(), "search not complete");
 	}
 
-	public void testEarlyCallToIsMaxRows() throws RetsException {
+	@Test
+	void testEarlyCallToIsMaxRows() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.ALL_TAGS_TEST);
-		try {
-			result.isMaxRows();
-			fail("Should throw illegal state exception");
-		} catch (IllegalStateException e) {
-			// "success"
-		}
+		assertThrows(IllegalStateException.class, result::isMaxRows, "Should throw illegal state exception");
 	}
 
-	public void testAllTags() throws RetsException {
+	@Test
+	void testAllTags() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.ALL_TAGS_TEST);
-		assertEquals("extended count wrong", 100, result.getCount());
+		assertEquals(100, result.getCount(), "extended count wrong");
 
-		assertTrue("iterator should have more", result.hasNext());
+		assertTrue(result.hasNext(), "iterator should have more");
 		String[] row = result.next();
-		assertNotNull("row 0 is null", row);
-		assertEquals("wrong number of row[0] elements", 1, row.length);
-		assertEquals("wrong row[0] data", "Data1", row[0]);
+		assertNotNull(row, "row 0 is null");
+		assertEquals(1, row.length, "wrong number of row[0] elements");
+		assertEquals("Data1", row[0], "wrong row[0] data");
 
-		assertTrue("iterator should have more", result.hasNext());
+		assertTrue(result.hasNext(), "iterator should have more");
 		row = result.next();
-		assertNotNull("row 1 is null", row);
-		assertEquals("wrong number of row[1] elements", 1, row.length);
-		assertEquals("wrong row[1] data", "Data2", row[0]);
+		assertNotNull(row, "row 1 is null");
+		assertEquals(1, row.length, "wrong number of row[1] elements");
+		assertEquals("Data2", row[0], "wrong row[1] data");
 
-		assertFalse("rows should be exhausted", result.hasNext());
-		assertTrue("search not complete", result.isComplete());
-		assertTrue("max rows not set", result.isMaxRows());
+		assertFalse(result.hasNext(), "rows should be exhausted");
+		assertTrue(result.isComplete(), "search not complete");
+		assertTrue(result.isMaxRows(), "max rows not set");
 	}
 
-	public void testReplyCode20208() throws RetsException {
+	@Test
+	void testReplyCode20208() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.MAXROWS_REPLYCODE);
-		assertEquals("extended count wrong", 100, result.getCount());
+		assertEquals(100, result.getCount(), "extended count wrong");
 
-		assertTrue("iterator should have more", result.hasNext());
+		assertTrue(result.hasNext(), "iterator should have more");
 		String[] row = result.next();
-		assertNotNull("row 0 is null", row);
-		assertEquals("wrong number of row[0] elements", 1, row.length);
-		assertEquals("wrong row[0] data", "Data1", row[0]);
+		assertNotNull(row, "row 0 is null");
+		assertEquals(1, row.length, "wrong number of row[0] elements");
+		assertEquals("Data1", row[0], "wrong row[0] data");
 
-		assertTrue("iterator should have more", result.hasNext());
+		assertTrue(result.hasNext(), "iterator should have more");
 		row = result.next();
-		assertNotNull("row 1 is null", row);
-		assertEquals("wrong number of row[1] elements", 1, row.length);
-		assertEquals("wrong row[1] data", "Data2", row[0]);
+		assertNotNull(row, "row 1 is null");
+		assertEquals(1, row.length, "wrong number of row[1] elements");
+		assertEquals("Data2", row[0], "wrong row[1] data");
 
-		assertFalse("rows should be exhausted", result.hasNext());
-		assertTrue("search not complete", result.isComplete());
-		assertTrue("max rows not set", result.isMaxRows());
+		assertFalse(result.hasNext(), "rows should be exhausted");
+		assertTrue(result.isComplete(), "search not complete");
+		assertTrue(result.isMaxRows(), "max rows not set");
 	}
 
-	public void testReplyCode20201WithColumns() throws RetsException {
+	@Test
+	void testReplyCode20201WithColumns() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.EMPTY_REPLYCODE_WITH_COLUMNS_TAG);
-		assertFalse("iterator should be empty", result.hasNext());
+		assertFalse(result.hasNext(), "iterator should be empty");
 	}
 
-	public void testReplyCode20201WithoutColumns() throws RetsException {
+	@Test
+	void testReplyCode20201WithoutColumns() throws RetsException {
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.EMPTY_REPLYCODE);
-		assertFalse("iterator should be empty", result.hasNext());
+		assertFalse(result.hasNext(), "iterator should be empty");
 	}
 
-	public void testEarlyException() throws RetsException {
-		try {
-			// Test now checks that the error is thrown at process 
-			// or during the evaluation of the data rows, since the
-			// result may be lazily evaluated (streaming)
+	@Test
+	void testEarlyException() throws RetsException {
+		assertThrows(InvalidReplyCodeException.class, () -> {
 			SearchResultSet result = runSearchTest(SearchResultHandlerTest.EARLY_ERROR_TEST);
 			while (result.hasNext())
 				result.next();
-			fail("Expected an Invalid ReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		}, "Expected an Invalid ReplyCodeException");
 	}
 
-	public void testLateException() throws RetsException {
-		try {
-			// Test now checks that the error is thrown at process 
-			// or during the evaluation of the data rows, since the
-			// result may be lazily evaluated (streaming)
+	@Test
+	void testLateException() throws RetsException {
+		assertThrows(InvalidReplyCodeException.class, () -> {
 			SearchResultSet result = runSearchTest(SearchResultHandlerTest.LATE_ERROR_TEST);
 			while (result.hasNext())
 				result.next();
-			fail("Expected an Invalid ReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		}, "Expected an Invalid ReplyCodeException");
 	}
 
-	public void testEarlyExceptionWithTrap() throws RetsException {
-		try {
-			// Test now checks that the error is thrown at process 
-			// or during the evaluation of the data rows, since the
-			// result may be lazily evaluated (streaming)
+	@Test
+	void testEarlyExceptionWithTrap() throws RetsException {
+		assertThrows(InvalidReplyCodeException.class, () -> {
 			SearchResultSet result = runSearchTest(SearchResultHandlerTest.EARLY_ERROR_TEST,
 					new TestInvalidReplyCodeHandler());
 			while (result.hasNext())
 				result.next();
-			fail("Expected an Invalid ReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		}, "Expected an Invalid ReplyCodeException");
 	}
 
-	public void testLateExceptionWithTrap() throws RetsException {
-		// Test now checks that the error is thrown at process 
-		// or during the evaluation of the data rows, since the
-		// result may be lazily evaluated (streaming)
+	@Test
+	void testLateExceptionWithTrap() throws RetsException {
 		TestInvalidReplyCodeHandler testInvalidReplyCodeHandler = new TestInvalidReplyCodeHandler();
 		SearchResultSet result = runSearchTest(SearchResultHandlerTest.LATE_ERROR_TEST, testInvalidReplyCodeHandler);
 		while (result.hasNext())
@@ -161,25 +151,21 @@ public class StreamingSearchResultProcessorTest extends TestCase {
 		assertEquals(SearchResultHandlerTest.LATE_ERROR_CODE, testInvalidReplyCodeHandler.getReplyCode());
 	}
 
-	public void testTimeout() throws Exception {
+	@Test
+	void testTimeout() throws Exception {
 		int timeout = 100;
 		SearchResultProcessor processor = new StreamingSearchResultProcessor(1, timeout);
 		Reader source = new StringReader(SearchResultHandlerTest.ALL_TAGS_TEST);
 		SearchResultSet result = processor.parse(source);
 
-		try {
-			// attempt to force timeout to occur
+		assertThrows(RetsException.class, () -> {
 			Thread.sleep(timeout * 10);
-			// hasNext should fail b/c timeout
-			// will have occurred
 			result.hasNext();
-			fail("Should fail since timeout should have been reached");
-		} catch (RetsException e) {
-			// success
-		}
+		}, "Should fail since timeout should have been reached");
 	}
 
-	public void testIONotEatenException() throws RetsException {
+	@Test
+	void testIONotEatenException() throws RetsException {
 		SearchResultProcessor processor = new StreamingSearchResultProcessor(100);
 
 		IOFailReader ioExceptionStream = new IOFailReader(new StringReader(SearchResultHandlerTest.ALL_TAGS_TEST));
@@ -187,13 +173,9 @@ public class StreamingSearchResultProcessorTest extends TestCase {
 
 		SearchResultSet resultSet = processor.parse(ioExceptionStream);
 
-		try {
+		assertThrows(RetsException.class, () -> {
 			while (resultSet.hasNext())
 				resultSet.next();
-			fail("Expection an IOException to be thrown during stream reading.");
-		} catch (RetsException e) {
-			e.printStackTrace();
-			assertNotNull(e);
-		}
+		}, "Expection an IOException to be thrown during stream reading.");
 	}
 }

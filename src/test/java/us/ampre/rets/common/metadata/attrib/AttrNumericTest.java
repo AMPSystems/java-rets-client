@@ -1,16 +1,20 @@
 package us.ampre.rets.common.metadata.attrib;
 
+import org.junit.jupiter.api.Test;
 import us.ampre.rets.common.metadata.AttrType;
 
-public class AttrNumericTest extends AttrTypeTest {
-	public void testNumeric() throws Exception {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class AttrNumericTest extends AttrTypeTest {
+
+	@Test
+	void testNumeric() throws Exception {
 		AttrType parser = new AttrNumeric();
 		assertEquals(Integer.class, parser.getType());
 		int[] values = { 1, 100, 99999, 12345, 67890 };
-		for (int i = 0; i < values.length; i++) {
-			int expected = values[i];
+		for (int expected : values) {
 			String input = Integer.toString(expected);
-			Object o = parser.parse(input,true);
+			Object o = parser.parse(input, true);
 			int output = ((Integer) o).intValue();
 			assertEquals(expected, output);
 		}

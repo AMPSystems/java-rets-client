@@ -2,9 +2,9 @@ package us.ampre.rets.client;
 
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public abstract class RetsTestCase extends TestCase {
+public abstract class RetsTestCase {
 	protected static InputStream getResource(String name) {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		return cl.getResourceAsStream("org/realtors/rets/client/" + name);
@@ -25,12 +25,12 @@ public abstract class RetsTestCase extends TestCase {
 			success = false;
 		}
 		if (!success) {
-			fail(message + " expected: " + arrayToString(expected) + " but got: " + arrayToString((actual)));
+			fail(message + " expected: " + arrayToString(expected) + " but got: " + arrayToString(actual));
 		}
 	}
 
 	private String arrayToString(Object[] array) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		for (int i = 0; i < array.length; i++) {
 			Object o = array[i];

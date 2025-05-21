@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.InputSource;
+import us.ampre.rets.client.exceptions.RetsException;
 
 /**
  * SearchResultProcessor that returns a streaming SearchResult implementation.

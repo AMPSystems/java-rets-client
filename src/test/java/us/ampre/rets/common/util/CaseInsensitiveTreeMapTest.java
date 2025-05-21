@@ -1,27 +1,30 @@
 package us.ampre.rets.common.util;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CaseInsensitiveTreeMapTest extends TestCase {
+class CaseInsensitiveTreeMapTest {
 
 	private CaseInsensitiveTreeMap map;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@BeforeEach
+	void setUp() {
 		this.map = new CaseInsensitiveTreeMap();
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@AfterEach
+	void tearDown() {
 		this.map = null;
 	}
 
-	public void testGetPut() throws Exception {
+	@Test
+	void testGetPut() {
 		this.map.put("A", "X");
 		assertEquals("X", this.map.get("A"));
 		assertEquals("X", this.map.get("a"));
@@ -33,13 +36,15 @@ public class CaseInsensitiveTreeMapTest extends TestCase {
 		assertEquals(1, this.map.size());
 	}
 
-	public void testContainsKey() throws Exception {
+	@Test
+	void testContainsKey() {
 		this.map.put("A", "X");
 		assertTrue(this.map.containsKey("A"));
 		assertTrue(this.map.containsKey("a"));
 	}
 
-	public void testClone() throws Exception {
+	@Test
+	void testClone() {
 		Map otherMap = new HashMap();
 		otherMap.put("A", "X");
 		otherMap.put("a", "Y");
