@@ -7,6 +7,8 @@
  */
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.RetsException;
+
 public class MetaCollectorImpl extends MetaCollectorAdapter {
 	private final RetsTransport mTransport;
 

@@ -61,7 +61,7 @@ public class LoginResponse extends KeyValueResponse {
 	public void parse(InputStream stream, RetsVersion version) throws RetsException {
 		super.parse(stream, version);
 		if (ReplyCode.BROKER_CODE_REQUIRED.equals(this.mReplyCode)) {
-			throw new BrokerCodeRequredException(this.brokerCodes);
+			throw new BrokerCodeRequiredException(this.brokerCodes);
 		}
 	}
 

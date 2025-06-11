@@ -1,4 +1,4 @@
-package us.ampre.rets.client;
+package us.ampre.rets.client.exceptions;
 
 public class RetsException extends Exception {
     public RetsException() {

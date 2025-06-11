@@ -2,6 +2,8 @@ package us.ampre.rets.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.*;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;

@@ -1,14 +1,18 @@
 package us.ampre.rets.common.metadata.attrib;
 
+import org.junit.jupiter.api.Test;
 import us.ampre.rets.common.metadata.AttrType;
 
-public class AttrEnumTest extends AttrTypeTest {
-	public void testEnum() throws Exception {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class AttrEnumTest extends AttrTypeTest {
+
+	@Test
+	void testEnum() throws Exception {
 		String[] values = { "One", "Two", "Three" };
 		AttrType parser = new AttrEnum(values);
-		for (int i = 0; i < values.length; i++) {
-			String value = values[i];
-			assertEquals(value, parser.render(parser.parse(value,true)));
+		for (String value : values) {
+			assertEquals(value, parser.render(parser.parse(value, true)));
 		}
 		assertParseException(parser, "Four");
 		assertParseException(parser, "");

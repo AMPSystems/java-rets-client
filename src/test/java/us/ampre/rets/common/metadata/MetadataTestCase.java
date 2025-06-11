@@ -7,8 +7,6 @@
  */
 package us.ampre.rets.common.metadata;
 
-import junit.framework.TestCase;
-
-public abstract class MetadataTestCase extends TestCase {
-	// nothing yet but we always end up wanting something
+public abstract class MetadataTestCase {
+    // nothing yet but we always end up wanting something
 }

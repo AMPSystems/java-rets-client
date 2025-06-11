@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+
 final class TestInvalidReplyCodeHandler implements InvalidReplyCodeHandler {
     private int replyCode;
     private String replyText;

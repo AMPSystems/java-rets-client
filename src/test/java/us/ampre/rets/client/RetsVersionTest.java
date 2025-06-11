@@ -1,31 +1,29 @@
 package us.ampre.rets.client;
 
-public class RetsVersionTest extends RetsTestCase {
-	
-	@SuppressWarnings("deprecation")
-	public void testEquals() {
-		assertEquals("Checking 1.0", RetsVersion.RETS_10, new RetsVersion(1, 0));
+import org.junit.jupiter.api.Test;
 
-		assertEquals("Checking 1.5", RetsVersion.RETS_15, new RetsVersion(1, 5));
-		
-		assertEquals("Checking 1.7", RetsVersion.RETS_17, new RetsVersion(1, 7));
-		
-		assertEquals("Checking 1.7.2", RetsVersion.RETS_1_7_2, new RetsVersion(1, 7, 2, 0));
-		
-		assertEquals("Checking revision support", RetsVersion.RETS_1_7_2, new RetsVersion(1, 7, 2, 0));
-		
-		assertFalse("Checking draft support", RetsVersion.RETS_15.equals(new RetsVersion(1, 5, 0, 1)));
+import static org.junit.jupiter.api.Assertions.*;
 
-		assertFalse("Checking backwards compatible draft support", RetsVersion.RETS_15.equals(new RetsVersion(1, 5, 1)));
+class RetsVersionTest {
+
+	@Test
+	void testEquals() {
+		assertEquals(RetsVersion.RETS_10, new RetsVersion(1, 0), "Checking 1.0");
+		assertEquals(RetsVersion.RETS_15, new RetsVersion(1, 5), "Checking 1.5");
+		assertEquals(RetsVersion.RETS_17, new RetsVersion(1, 7), "Checking 1.7");
+		assertEquals(RetsVersion.RETS_1_7_2, new RetsVersion(1, 7, 2, 0), "Checking 1.7.2");
+		assertEquals(RetsVersion.RETS_1_7_2, new RetsVersion(1, 7, 2, 0), "Checking revision support");
+		assertFalse(RetsVersion.RETS_15.equals(new RetsVersion(1, 5, 0, 1)), "Checking draft support");
+		assertFalse(RetsVersion.RETS_15.equals(new RetsVersion(1, 5, 1)), "Checking backwards compatible draft support");
 	}
 
-	@SuppressWarnings("deprecation")
-	public void testToString() {
-		assertEquals("Checking toString() 1.0", "RETS/1.0", RetsVersion.RETS_10.toString());
-		assertEquals("Checking toString() 1.5", "RETS/1.5", RetsVersion.RETS_15.toString());
-		assertEquals("Checking toString() 1.7", "RETS/1.7", RetsVersion.RETS_17.toString());
-		assertEquals("Checking toString() 1.7.2", "RETS/1.7.2", RetsVersion.RETS_1_7_2.toString());
-		assertEquals("Checking toString() backward compatible draft without revision", "RETS/1.5d1", new RetsVersion(1, 5, 1).toString());
-		assertEquals("Checking toString() revision with draft", "RETS/1.7.2d1", new RetsVersion(1, 7, 2, 1).toString());
+	@Test
+	void testToString() {
+		assertEquals("RETS/1.0", RetsVersion.RETS_10.toString(), "Checking toString() 1.0");
+		assertEquals("RETS/1.5", RetsVersion.RETS_15.toString(), "Checking toString() 1.5");
+		assertEquals("RETS/1.7", RetsVersion.RETS_17.toString(), "Checking toString() 1.7");
+		assertEquals("RETS/1.7.2", RetsVersion.RETS_1_7_2.toString(), "Checking toString() 1.7.2");
+		assertEquals("RETS/1.5d1", new RetsVersion(1, 5, 1).toString(), "Checking toString() backward compatible draft without revision");
+		assertEquals("RETS/1.7.2d1", new RetsVersion(1, 7, 2, 1).toString(), "Checking toString() revision with draft");
 	}
 }

@@ -1,23 +1,16 @@
-/*
- * cart:  CRT's Awesome RETS Tool
- *
- * Author: David Terrell
- * Copyright (c) 2003, The National Association of REALTORS
- * Distributed under a BSD-style license.  See LICENSE.TXT for details.
- */
 package us.ampre.rets.client;
+
+import org.junit.jupiter.api.Test;
+import org.xml.sax.InputSource;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 import java.io.StringReader;
 
-import org.xml.sax.InputSource;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * TODO refactor this and the StreamingSearchResultsProcessorTest.
- * 
- * dbt is lame and hasn't overridden the default
- * javadoc string.
- */
-public class SearchResultHandlerTest extends RetsTestCase {
+class SearchResultHandlerTest {
+
 	SearchResult runSearchTest(String input) throws RetsException {
 		return runSearchTest(input, InvalidReplyCodeHandler.FAIL);
 	}
@@ -30,88 +23,91 @@ public class SearchResultHandlerTest extends RetsTestCase {
 		return res;
 	}
 
-	public void testSmallResult() throws RetsException {
+	@Test
+	void testSmallResult() throws RetsException {
 		SearchResult result = runSearchTest(GOOD_SMALL_TEST);
-		assertTrue("search not complete", result.isComplete());
+		assertTrue(result.isComplete(), "search not complete");
 		String[] columns = result.getColumns();
 		assertNotNull(columns);
-		assertEquals("column headers count wrong", 1, columns.length);
-		assertEquals("bad column header", "Column1", columns[0]);
-		assertEquals("wrong row count", 1, result.getCount());
+		assertEquals(1, columns.length, "column headers count wrong");
+		assertEquals("Column1", columns[0], "bad column header");
+		assertEquals(1, result.getCount(), "wrong row count");
 		String[] row = result.getRow(0);
-		assertEquals("wrong row width", 1, row.length);
-		assertEquals("wrong row data", "Data1", row[0]);
-		assertFalse("max rows wrong", result.isMaxRows());
+		assertEquals(1, row.length, "wrong row width");
+		assertEquals("Data1", row[0], "wrong row data");
+		assertFalse(result.isMaxRows(), "max rows wrong");
 	}
 
-	public void testAllTags() throws RetsException {
+	@Test
+	void testAllTags() throws RetsException {
 		SearchResult result = runSearchTest(ALL_TAGS_TEST);
-		assertTrue("search not complete", result.isComplete());
-		assertEquals("extended count wrong", 100, result.getCount());
-		assertTrue("max rows not set", result.isMaxRows());
+		assertTrue(result.isComplete(), "search not complete");
+		assertEquals(100, result.getCount(), "extended count wrong");
+		assertTrue(result.isMaxRows(), "max rows not set");
 		String[] row = result.getRow(0);
-		assertNotNull("row 0 is null", row);
-		assertEquals("wrong number of row[0] elements", 1, row.length);
-		assertEquals("wrong row[0] data", "Data1", row[0]);
+		assertNotNull(row, "row 0 is null");
+		assertEquals(1, row.length, "wrong number of row[0] elements");
+		assertEquals("Data1", row[0], "wrong row[0] data");
 		row = result.getRow(1);
-		assertNotNull("row 1 is null", row);
-		assertEquals("wrong number of row[1] elements", 1, row.length);
-		assertEquals("wrong row[1] data", "Data2", row[0]);
+		assertNotNull(row, "row 1 is null");
+		assertEquals(1, row.length, "wrong number of row[1] elements");
+		assertEquals("Data2", row[0], "wrong row[1] data");
 	}
 
-	public void testReplyCode20208() throws RetsException {
+	@Test
+	void testReplyCode20208() throws RetsException {
 		SearchResult result = runSearchTest(MAXROWS_REPLYCODE);
-		assertTrue("search not complete", result.isComplete());
-		assertEquals("extended count wrong", 100, result.getCount());
-		assertTrue("max rows not set", result.isMaxRows());
+		assertTrue(result.isComplete(), "search not complete");
+		assertEquals(100, result.getCount(), "extended count wrong");
+		assertTrue(result.isMaxRows(), "max rows not set");
 		String[] row = result.getRow(0);
-		assertNotNull("row 0 is null", row);
-		assertEquals("wrong number of row[0] elements", 1, row.length);
-		assertEquals("wrong row[0] data", "Data1", row[0]);
+		assertNotNull(row, "row 0 is null");
+		assertEquals(1, row.length, "wrong number of row[0] elements");
+		assertEquals("Data1", row[0], "wrong row[0] data");
 		row = result.getRow(1);
-		assertNotNull("row 1 is null", row);
-		assertEquals("wrong number of row[1] elements", 1, row.length);
-		assertEquals("wrong row[1] data", "Data2", row[0]);
+		assertNotNull(row, "row 1 is null");
+		assertEquals(1, row.length, "wrong number of row[1] elements");
+		assertEquals("Data2", row[0], "wrong row[1] data");
 	}
 
-	public void testReplyCode20201WithColumns() throws RetsException {
+	@Test
+	void testReplyCode20201WithColumns() throws RetsException {
 		SearchResult result = runSearchTest(EMPTY_REPLYCODE_WITH_COLUMNS_TAG);
-		assertFalse("iterator should be empty", result.iterator().hasNext());
+		assertFalse(result.iterator().hasNext(), "iterator should be empty");
 	}
 
-	public void testReplyCode20201WithoutColumns() throws RetsException {
+	@Test
+	void testReplyCode20201WithoutColumns() throws RetsException {
 		SearchResult result = runSearchTest(EMPTY_REPLYCODE);
-		assertFalse("iterator should be empty", result.iterator().hasNext());
+		assertFalse(result.iterator().hasNext(), "iterator should be empty");
 	}
 
-	public void testEarlyException() throws RetsException {
-		try {
+	@Test
+	void testEarlyException() {
+		Exception exception = assertThrows(InvalidReplyCodeException.class, () -> {
 			runSearchTest(EARLY_ERROR_TEST);
-			fail("Expected an InvalidReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		});
+		// Optionally, assert on exception message if needed
 	}
 
-	public void testLateException() throws RetsException {
-		try {
+	@Test
+	void testLateException() {
+		Exception exception = assertThrows(InvalidReplyCodeException.class, () -> {
 			runSearchTest(LATE_ERROR_TEST);
-			fail("Expected an Invalid ReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		});
+		// Optionally, assert on exception message if needed
 	}
 
-	public void testEarlyExceptionWithTrap() throws RetsException {
-		try {
+	@Test
+	void testEarlyExceptionWithTrap() {
+		Exception exception = assertThrows(InvalidReplyCodeException.class, () -> {
 			runSearchTest(EARLY_ERROR_TEST, new TestInvalidReplyCodeHandler());
-			fail("Expected an InvalidReplyCodeException");
-		} catch (InvalidReplyCodeException e) {
-			// "success"
-		}
+		});
+		// Optionally, assert on exception message if needed
 	}
 
-	public void testLateExceptionWithTrap() throws RetsException {
+	@Test
+	void testLateExceptionWithTrap() throws RetsException {
 		TestInvalidReplyCodeHandler testInvalidReplyCodeHandler = new TestInvalidReplyCodeHandler();
 		runSearchTest(LATE_ERROR_TEST, testInvalidReplyCodeHandler);
 		assertEquals(LATE_ERROR_CODE, testInvalidReplyCodeHandler.getReplyCode());

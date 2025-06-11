@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+
 /**
  * @author jrayburn
  */
@@ -15,7 +17,7 @@ public interface ReplyCodeHandler {
 	 * 
 	 * @param replyCode The RETS reply code
 	 * 
-	 * @throws InvalidReplyCodeException Thrown if reply code is 
+	 * @throws InvalidReplyCodeException Thrown if reply code is
 	 * invalid for the SearchResultCollector.
 	 */
 	public void handleReplyCode(int replyCode) throws InvalidReplyCodeException;

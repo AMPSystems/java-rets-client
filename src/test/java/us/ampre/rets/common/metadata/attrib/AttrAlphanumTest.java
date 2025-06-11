@@ -1,45 +1,49 @@
 package us.ampre.rets.common.metadata.attrib;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import us.ampre.rets.common.metadata.AttrType;
 import us.ampre.rets.common.metadata.MetaParseException;
 
-public class AttrAlphanumTest extends AttrTypeTest {
-	@Override
-	protected void setUp() throws Exception {
-		this.mShort = new AttrAlphanum(1, 10);
-		this.mLong = new AttrAlphanum(10, 100);
-	}
 
-	public void testAlphanum() throws MetaParseException {
-		String test1 = "1234567890";
-		String test2 = "abcdefghijklmnopqrstuvwxyz";
-		String test3 = test2.toUpperCase();
-		// special exceptions for CRT metadata
-		String test4 = "123-_ 456";
-		this.mShort.parse(test1,true);
-		this.mLong.parse(test2,true);
-		this.mLong.parse(test3,true);
-		this.mShort.parse(test4,true);
-	}
+class AttrAlphanumTest extends AttrTypeTest {
+    private AttrType mShort;
+    private AttrType mLong;
 
-	public void testFailures() throws Exception {
-		String test1 = "abcdefg%";
-		String test2 = "!abcdefg";
-		String test3 = "___^___ ";
+    @BeforeEach
+    void setUp() {
+        this.mShort = new AttrAlphanum(1, 10);
+        this.mLong = new AttrAlphanum(10, 100);
+    }
 
-		assertParseException(this.mShort, test1);
-		assertParseException(this.mShort, test2);
-		assertParseException(this.mShort, test3);
-	}
+    @Test
+    void testAlphanum() throws MetaParseException {
+        String test1 = "1234567890";
+        String test2 = "abcdefghijklmnopqrstuvwxyz";
+        String test3 = test2.toUpperCase();
+        String test4 = "123-_ 456";
+        mShort.parse(test1, true);
+        mLong.parse(test2, true);
+        mLong.parse(test3, true);
+        mShort.parse(test4, true);
+    }
 
-	public void testLength() throws Exception {
-		String test1 = "abcdefghij12345";
-		String test2 = "12345";
-		assertParseException(this.mShort, test1);
-		assertParseException(this.mLong, test2);
-	}
+    @Test
+    void testFailures() throws Exception {
+        String test1 = "abcdefg%";
+        String test2 = "!abcdefg";
+        String test3 = "___^___ ";
 
-	private AttrType mShort;
+        assertParseException(mShort, test1);
+        assertParseException(mShort, test2);
+        assertParseException(mShort, test3);
+    }
 
-	private AttrType mLong;
+    @Test
+    void testLength() throws Exception {
+        String test1 = "abcdefghij12345";
+        String test2 = "12345";
+        assertParseException(mShort, test1);
+        assertParseException(mLong, test2);
+    }
 }

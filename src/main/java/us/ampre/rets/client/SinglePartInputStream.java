@@ -4,14 +4,14 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 
-class SinglePartInputStream extends FilterInputStream {
+public class SinglePartInputStream extends FilterInputStream {
 	private static final int EOS = -1;
 	
 	private final String boundary;
 	private boolean eos;
 
 	
-	SinglePartInputStream(PushbackInputStream partInput, String boundary) {
+	public SinglePartInputStream(PushbackInputStream partInput, String boundary) {
 		super(partInput);
 		this.boundary = boundary;
 	}

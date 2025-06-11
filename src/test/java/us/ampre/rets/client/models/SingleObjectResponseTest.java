@@ -1,24 +1,18 @@
-package us.ampre.rets.client;
+package us.ampre.rets.client.models;
+
+import org.junit.jupiter.api.Test;
+import us.ampre.rets.client.models.SingleObjectResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SingleObjectResponseTest extends TestCase {
+class SingleObjectResponseTest {
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	public void testCaseInsensitiveHeaders() throws Exception {
-		Map headers = new HashMap();
+	@Test
+	void testCaseInsensitiveHeaders() {
+		Map<String, String> headers = new HashMap<>();
 		headers.put("Content-type", "1");
 		headers.put("location", "2");
 		headers.put("Object-Id", "3");
@@ -32,5 +26,4 @@ public class SingleObjectResponseTest extends TestCase {
 		assertEquals("4", res.getContentID());
 		assertEquals("5", res.getDescription());
 	}
-
 }

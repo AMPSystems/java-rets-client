@@ -13,8 +13,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 import us.ampre.rets.common.metadata.Metadata;
 import us.ampre.rets.common.metadata.MetadataException;
+import us.ampre.rets.client.models.GetObjectResponse;
 
 /**
  * RetsSession is the core class of the rets client package.

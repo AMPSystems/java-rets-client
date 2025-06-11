@@ -5,6 +5,8 @@ import java.io.InputStream;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import us.ampre.rets.client.exceptions.InvalidReplyCodeException;
+import us.ampre.rets.client.exceptions.RetsException;
 
 /**
  * dbt is lame and hasn't overridden the default

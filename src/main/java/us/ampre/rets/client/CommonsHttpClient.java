@@ -24,6 +24,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
+import us.ampre.rets.client.exceptions.InvalidHttpStatusException;
+import us.ampre.rets.client.exceptions.RetsException;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
 @Slf4j

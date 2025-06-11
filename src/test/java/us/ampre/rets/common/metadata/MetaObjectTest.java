@@ -1,7 +1,13 @@
 package us.ampre.rets.common.metadata;
 
-public class MetaObjectTest extends MetadataTestCase {
-	public void testStrictAttributes() {
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class MetaObjectTest extends MetadataTestCase {
+
+	@Test
+	void testStrictAttributes() {
 		MetaObject.clearAttributeMapCache();
 		TestMetaObject metaObject = createTestMetaObject(MetaObject.STRICT_PARSING);
 		assertEquals("SomeName", metaObject.getSystemName());
@@ -10,14 +16,16 @@ public class MetaObjectTest extends MetadataTestCase {
 		assertEquals("foo bar", metaObject.getAttributeAsString("string1"));
 	}
 
-	public void testLooseAttributes() {
+	@Test
+	void testLooseAttributes() {
 		MetaObject.clearAttributeMapCache();
 		TestMetaObject metaObject = createTestMetaObject(MetaObject.LOOSE_PARSING);
 		assertEquals("somename", metaObject.getSystemName());
 		assertEquals("foo bar", metaObject.getString1());
 	}
 
-	public void testCache() {
+	@Test
+	void testCache() {
 		TestMetaObject.resetAddAttributeCount();
 		MetaObject.clearAttributeMapCache();
 		createTestMetaObject(MetaObject.STRICT_PARSING);

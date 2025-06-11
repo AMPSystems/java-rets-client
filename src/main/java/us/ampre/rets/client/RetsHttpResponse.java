@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.RetsException;
+
 import java.util.Map;
 import java.io.InputStream;
 

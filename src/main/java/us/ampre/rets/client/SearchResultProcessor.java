@@ -1,5 +1,7 @@
 package us.ampre.rets.client;
 
+import us.ampre.rets.client.exceptions.RetsException;
+
 import java.io.InputStream;
 import java.io.Reader;
 

@@ -1,20 +1,13 @@
-/*
- * cart:  CRT's Awesome RETS Tool
- *
- * Author: David Terrell
- * Copyright (c) 2003, The National Association of REALTORS
- * Distributed under a BSD-style license.  See LICENSE.TXT for details.
- */
 package us.ampre.rets.client;
 
+import org.junit.jupiter.api.Test;
 import java.util.NoSuchElementException;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * dbt is lame and hasn't overridden the default
- * javadoc string.
- */
-public class SearchResultImplTest extends RetsTestCase {
-	public void testSearchResult() {
+class SearchResultImplTest {
+
+	@Test
+	void testSearchResult() {
 		String[] cols = { "Column1", "Column2" };
 		String[] row1 = { "Data1x1", "Data1x2" };
 		String[] row2 = { "Data2x1", "Data2x2" };
@@ -28,29 +21,26 @@ public class SearchResultImplTest extends RetsTestCase {
 		result.addRow(row2);
 		result.setMaxRows();
 		result.setComplete();
-		assertEquals("setCount wrong", result.getCount(), 5);
-		assertTrue("isComplete not set", result.isComplete());
-		assertTrue("isMaxrows not set", result.isMaxRows());
-		assertEquals("columns mangled", cols, result.getColumns());
-		assertEquals("row 1 mangled", row1, result.getRow(0));
-		assertEquals("row 2 mangled", row2alt, result.getRow(1));
-		try {
-			result.getRow(2);
-			fail("getting invalid row 2 should have thrown " + "NoSuchElementException");
-		} catch (NoSuchElementException e) {
-			// "success"
-		}
+		org.junit.jupiter.api.Assertions.assertEquals(5, result.getCount(), "setCount wrong");
+		assertTrue(result.isComplete(), "isComplete not set");
+		assertTrue(result.isMaxRows(), "isMaxrows not set");
+		assertArrayEquals(cols, result.getColumns(), "columns mangled");
+		assertArrayEquals(row1, result.getRow(0), "row 1 mangled");
+		assertArrayEquals(row2alt, result.getRow(1), "row 2 mangled");
+		assertThrows(NoSuchElementException.class, () -> result.getRow(2),
+				"getting invalid row 2 should have thrown NoSuchElementException");
 	}
 
-	public void testMinimumSearchResult() {
+	@Test
+	void testMinimumSearchResult() {
 		String[] cols = { "col1" };
 		String[] row = { "row1" };
 		SearchResultImpl result = new SearchResultImpl();
 		result.setColumns(cols);
 		result.addRow(row);
 		result.setComplete();
-		assertEquals("row count wrong", 1, result.getCount());
-		assertTrue("isComplete wrong", result.isComplete());
-		assertFalse("isMaxrows wrong", result.isMaxRows());
+		org.junit.jupiter.api.Assertions.assertEquals(1, result.getCount(), "row count wrong");
+		assertTrue(result.isComplete(), "isComplete wrong");
+		assertFalse(result.isMaxRows(), "isMaxrows wrong");
 	}
 }
