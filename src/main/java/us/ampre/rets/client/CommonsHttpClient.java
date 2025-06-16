@@ -89,7 +89,7 @@ public class CommonsHttpClient extends RetsHttpClient {
         if (args != null) {
             url = url + "?" + args;
         }
-        log.debug("URL = [{}]", url);
+        log.trace("URL = [{}]", url);
         HttpGet method = new HttpGet(url);
         return execute(method, request.getHeaders());
     }

@@ -148,7 +148,7 @@ public class RetsSession {
     }
 
     public void setSessionId(String sessionId) {
-        LOG.debug("setting Session-ID to: " + sessionId);
+        LOG.trace("setting Session-ID to: " + sessionId);
         this.sessionId = sessionId;
     }
 

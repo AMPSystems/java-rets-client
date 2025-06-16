@@ -35,13 +35,13 @@ abstract public class KeyValueResponse {
             SAXBuilder builder = new SAXBuilder();
             this.mDoc = builder.build(stream);
             Element retsElement = this.mDoc.getRootElement();
-            if (!retsElement.getName().equals("RETS")) {
+            if (retsElement.getName().equals("RETS") == false) {
                 throw new RetsException("Expecting RETS");
             }
 
             int replyCode = NumberUtils.toInt(retsElement.getAttributeValue("ReplyCode"));
             this.mReplyCode = replyCode;
-            if (!isValidReplyCode(replyCode)) {
+            if (isValidReplyCode(replyCode) == false) {
                 throw new InvalidReplyCodeException(replyCode);
             }
             Element capabilityContainer;
@@ -55,7 +55,7 @@ abstract public class KeyValueResponse {
 
                 capabilityContainer = (Element) children.get(0);
 
-                if (!capabilityContainer.getName().equals("RETS-RESPONSE")) {
+                if (capabilityContainer.getName().equals("RETS-RESPONSE") == false) {
                     throw new RetsException("Expecting RETS-RESPONSE");
                 }
             }
@@ -78,8 +78,8 @@ abstract public class KeyValueResponse {
             String key = splits[0].trim();
             // guard against a missing value in a KeyValueResponse
             String value = splits.length > 1 ? splits[1].trim() : "";
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("<" + key + "> -> <" + value + ">");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("<" + key + "> -> <" + value + ">");
             }
             this.handleKeyValue(key, value);
         }
