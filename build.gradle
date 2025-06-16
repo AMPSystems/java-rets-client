@@ -148,6 +148,10 @@ configurations {
     }
 }
 
+jar {
+    enabled = false
+}
+
 test {
     useJUnitPlatform()
     mustRunAfter clean
