@@ -99,7 +99,6 @@ repositories {
 publishing {
     publications {
         javaretsclient(MavenPublication) {
-            artifact bootJar
             from components.java
             versionMapping {
                 usage('java-api') {
@@ -146,10 +145,6 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-}
-
-jar {
-    enabled = false
 }
 
 test {
