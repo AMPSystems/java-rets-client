@@ -1,6 +1,5 @@
 package us.ampre.rets.client.models;
 
-import lombok.Getter;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -11,14 +10,18 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import us.ampre.rets.client.*;
+import us.ampre.rets.client.GetObjectIterator;
+import us.ampre.rets.client.NonMultipartGetObjectResponseIterator;
+import us.ampre.rets.client.ReplyCode;
 import us.ampre.rets.client.exceptions.RetsException;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * Represents the response from a RETS GetObject request.
@@ -28,7 +31,10 @@ import java.util.NoSuchElementException;
  * Handles error responses and exposes reply codes and messages.
  * </p>
  *
- * This class is not thread-safe and should be used in a single-threaded context.
+ * <b>Note:</b> This class is <b>not thread-safe</b> and should be used in a single-threaded context.
+ * The headers are stored in a case-insensitive map.
+ * The input stream may be consumed for XML error handling.
+ * The iterator returned is single-use; calling {@code iterator()} or {@code iterator(int)} more than once will throw an exception.
  *
  * @author: Ampre Chris Hailey
  */
@@ -51,8 +57,7 @@ public class GetObjectResponse {
             };
 
     private final Map<String, String> headers;
-    @Getter
-    private final InputStream inputStream;
+    private final byte[] inputStreamData;
     private final boolean isMultipart;
     private boolean emptyResponse;
     private boolean exhausted;
@@ -64,17 +69,22 @@ public class GetObjectResponse {
      * Constructs a GetObjectResponse from headers and input stream.
      * Handles multipart and XML error responses.
      *
-     * @param headers the response headers
-     * @param in      the input stream of the response
-     * @throws RetsException if the response is malformed or contains an error
+     * @param headers the response headers (case-insensitive, must not be null)
+     * @param in      the input stream of the response (must not be null)
+     * @throws RetsException        if the response is malformed or contains an error
+     * @throws NullPointerException if headers or in is null
      */
     public GetObjectResponse(Map<String, String> headers, InputStream in) throws RetsException {
         this.emptyResponse = false;
         this.exhausted = false;
-        this.headers = new CaseInsensitiveTreeMap<>(headers);
+        this.headers = new CaseInsensitiveTreeMap<>(Objects.requireNonNull(headers, "headers"));
         this.isMultipart = getType() != null && getType().contains("multipart");
-        this.inputStream = in;
-
+        Objects.requireNonNull(in, "inputStream");
+        try {
+            this.inputStreamData = in.readAllBytes();
+        } catch (IOException e) {
+            throw new RetsException("Failed to copy input stream", e);
+        }
         boolean isXml = getType() != null && getType().contains("text/xml");
         boolean containsContentId = headers.containsKey(SingleObjectResponse.CONTENT_ID);
         boolean nonMultiPartXmlWithoutContentId = this.isMultipart == false && isXml && containsContentId == false;
@@ -85,7 +95,7 @@ public class GetObjectResponse {
             try {
                 this.emptyResponse = true;
                 SAXBuilder builder = new SAXBuilder();
-                Document mDocument = builder.build(in);
+                Document mDocument = builder.build(getInputStream());
                 Element root = mDocument.getRootElement();
                 if ("RETS".equals(root.getName())) {
                     replyCode = NumberUtils.toInt(root.getAttributeValue("ReplyCode"));
@@ -99,7 +109,11 @@ public class GetObjectResponse {
                 throw new RetsException("Malformed response [multipart=" + this.isMultipart + ", content-type=text/xml]. " +
                         "Content id did not exist in response and response was not valid RETS response.");
             } catch (JDOMException | IOException e) {
-                errorResponse = new SingleObjectResponse(headers, null, e.getMessage());
+                try {
+                    errorResponse = new SingleObjectResponse(headers, null, e.getMessage());
+                } catch (IOException ex) {
+                    throw new RetsException(ex);
+                }
                 throw new RetsException(e);
             }
         }
@@ -122,11 +136,12 @@ public class GetObjectResponse {
 
     /**
      * Returns the reply code and text from the RETS response, formatted as "<code>-<text>".
-     * This is useful for logging or error reporting.
+     * Returns null if replyText is not available.
      *
      * @return reply code and text as a string, or null if not available
      */
     public String getReplyText() {
+        if (replyText == null) return null;
         return replyCode + "-" + replyText;
     }
 
@@ -219,6 +234,9 @@ public class GetObjectResponse {
      * @throws RetsException if the response is exhausted or malformed
      */
     public <T extends SingleObjectResponse> GetObjectIterator<T> iterator(int bufferSize) throws RetsException {
+        if (this.inputStreamData == null || this.inputStreamData.length == 0) {
+            throw new RetsException("Empty input stream");
+        }
         if (this.exhausted)
             throw new RetsException("Response was exhausted - cannot request iterator a second time");
         this.exhausted = true;
@@ -258,11 +276,23 @@ public class GetObjectResponse {
 
         if (this.isMultipart) {
             try {
-                return GetObjectResponseIterator.createIterator(this, DEFAULT_BUFFER_SIZE);
+                // Pass a new ByteArrayInputStream to the iterator for multipart
+                return GetObjectResponseIterator.createIterator(
+                        this,
+                        bufferSize
+                );
             } catch (Exception e) {
                 throw new RetsException("Error creating multipart GetObjectIterator", e);
             }
         }
-        return new NonMultipartGetObjectResponseIterator(this.headers, this.inputStream);
+        // For non-multipart, always use a new ByteArrayInputStream
+        return new NonMultipartGetObjectResponseIterator(
+                this.headers,
+                new java.io.ByteArrayInputStream(this.inputStreamData)
+        );
+    }
+
+    public InputStream getInputStream() {
+        return new ByteArrayInputStream(this.inputStreamData);
     }
 }
