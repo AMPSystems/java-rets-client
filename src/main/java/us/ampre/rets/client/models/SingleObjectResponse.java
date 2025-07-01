@@ -1,6 +1,7 @@
 package us.ampre.rets.client.models;
 
 import lombok.Getter;
+import lombok.Setter;
 import us.ampre.rets.client.utils.InputStreamUtil;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
@@ -30,7 +31,8 @@ public class SingleObjectResponse {
     private final Map<String, String> headers;
 
     @Getter
-    private final InputStream inputStream;
+    @Setter
+    private InputStream inputStream;
     @Getter
     private final String errorMessage;
 
