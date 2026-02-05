@@ -43,13 +43,30 @@ public class JavaRetsApplication implements CommandLineRunner {
 		//Create a RetsHttpClient (other constructors provide configuration i.e. timeout, gzip capability)
 		RetsHttpClient httpClient = new CommonsHttpClient();
 		RetsVersion retsVersion = RetsVersion.RETS_1_7_2;
-		String loginUrl = retsProperties.getLoginUrl();
+		String loginUrl = null;
+		if (retsProperties.getLoginUrl() != null) {
+			loginUrl = retsProperties.getLoginUrl();
+		} else {
+			log.error("loginUrl is null");
+			return;
+		}
 
 		//Create a RetsSession with RetsHttpClient
 		RetsSession session = new RetsSession(loginUrl, httpClient, retsVersion);
 
-		String username 			= retsProperties.getUsername();
-		String password 			= retsProperties.getPassword();
+		String username = null;
+		if (retsProperties.getUsername()  != null) {
+			username = retsProperties.getUsername();
+		} else {
+			log.error("username is null");
+		}
+		String password = null;
+		if (retsProperties.getPassword()  != null) {
+			password = retsProperties.getPassword();
+		} else {
+			log.error("password is null");
+			return;
+		}
 		String userAgent 			= retsProperties.getUserAgent();
 		String userAgentPassword 	= retsProperties.getUserAgentPassword();
 
