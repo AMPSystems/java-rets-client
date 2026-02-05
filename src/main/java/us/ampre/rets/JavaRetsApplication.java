@@ -18,14 +18,14 @@ import java.net.MalformedURLException;
 
 @Slf4j
 @SpringBootApplication
-public class RetsApplication implements CommandLineRunner {
+public class JavaRetsApplication implements CommandLineRunner {
 
 	@Autowired
 	private RetsProperties retsProperties;
 
 	public static void main(String[] args) {
 
-		SpringApplication app = new SpringApplication(RetsApplication.class);
+		SpringApplication app = new SpringApplication(JavaRetsApplication.class);
 		// tell spring to not start the netty web server
 		app.setWebApplicationType(WebApplicationType.NONE);
 		app.run(args);
