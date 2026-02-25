@@ -12,7 +12,7 @@ ext {
 }
 
 group = 'us.ampre'
-version = '1.2.2'
+version = '1.3.0-SNAPSHOT'
 description = 'Java Rets Client'
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
@@ -38,6 +38,14 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
 
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier.set('')
+}
 configurations.all {
     exclude group: 'commons-logging', module: 'commons-logging'
 }
