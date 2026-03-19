@@ -189,10 +189,29 @@ public class RetsTransport {
 
 		LoginResponse response = new LoginResponse(this.capabilities.getLoginUrl());
 
-		String sessionId = retsHttpResponse.getCookie(RETS_SESSION_ID_HEADER);
+		String sessionId = null;
+		try {
+			sessionId = retsHttpResponse.getCookie(RETS_SESSION_ID_HEADER);
+		} catch (Exception e) {
+			LOG.trace("Unable to read session cookie from login response: {}", e.getMessage());
+		}
 		response.setSessionId(sessionId);
 		response.setStrict(this.strict);
+		// Log headers and cookies from the login response for debugging
+		try {
+			Map headers = retsHttpResponse.getHeaders();
+			LOG.debug("Login response headers: {}", headers);
+		} catch (Exception e) {
+			LOG.trace("Unable to log login response headers", e);
+		}
+		try {
+			Map cookies = retsHttpResponse.getCookies();
+			LOG.debug("Login response cookies: {}", cookies);
+		} catch (Exception e) {
+			LOG.trace("Unable to log login response cookies", e);
+		}
 		response.parse(retsHttpResponse.getInputStream(), this.version);
+		LOG.debug("Login produced sessionId: {}", sessionId);
 		return response;
 	}
 

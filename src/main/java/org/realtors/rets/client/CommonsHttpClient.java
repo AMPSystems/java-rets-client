@@ -136,11 +136,34 @@ public class CommonsHttpClient extends RetsHttpClient {
 			if( this.userAgentPassword != null ){
 			    method.setHeader(RETS_UA_AUTH_HEADER, calculateUaAuthHeader(method,getCookies()));
 			}
+			// Log cookies that will be sent with the request (for debugging authentication/session problems)
+			try {
+				Map<String,String> cookiesToSend = getCookies();
+				if (cookiesToSend != null && !cookiesToSend.isEmpty()) {
+					LOG.debug("Sending cookies: {}", cookiesToSend);
+				} else {
+					LOG.debug("Sending cookies: <none>");
+				}
+			} catch (Exception _ex) {
+				// best-effort logging; do not fail request if logging fails
+				LOG.trace("Unable to enumerate cookies for debug logging", _ex);
+			}
 			// try to execute the request
 			HttpResponse response = this.httpClient.execute(method);
 			StatusLine status = response.getStatusLine();
 			if (status.getStatusCode() != HttpStatus.SC_OK) {
 				throw new InvalidHttpStatusException(status);
+			}
+			// Log Set-Cookie headers from response for visibility
+			try {
+				Map<String,String> postCookies = getCookies();
+				if (postCookies != null && !postCookies.isEmpty()) {
+					LOG.debug("Cookies after response: {}", postCookies);
+				} else {
+					LOG.debug("Cookies after response: <none>");
+				}
+			} catch (Exception _ex) {
+				LOG.trace("Unable to enumerate post-response cookies for debug logging", _ex);
 			}
 			return new CommonsHttpClientResponse(response, getCookies());
 		} catch (Exception e) {
