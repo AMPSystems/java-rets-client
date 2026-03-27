@@ -48,10 +48,14 @@ public class SingleObjectResponse {
      * @throws IOException              if copying the input stream fails
      * @throws NullPointerException     if headers is null
      */
-    public SingleObjectResponse(Map<String, String> headers, InputStream inputStream, String errorMessage) throws IOException {
+    protected SingleObjectResponse(Map<String, String> headers, InputStream inputStream, String errorMessage, boolean copyInputStream) throws IOException {
         this.headers = new CaseInsensitiveTreeMap<>(Objects.requireNonNull(headers, "headers"));
         if (inputStream != null) {
-            this.inputStream = InputStreamUtil.copyStream(inputStream);
+            if (copyInputStream) {
+                this.inputStream = InputStreamUtil.copyStream(inputStream);
+            } else {
+                this.inputStream = inputStream;
+            }
         } else {
             this.inputStream = null;
         }
@@ -59,18 +63,24 @@ public class SingleObjectResponse {
     }
 
     /**
-     * Constructs a successful SingleObjectResponse with headers and content stream.
-     * <p>
-     * The input stream is fully copied to ensure this instance has an independent stream.
-     * </p>
+     * Constructs a SingleObjectResponse with headers and content stream. By default the
+     * input stream is copied into memory to preserve the original semantics.
      *
      * @param headers     the response headers (case-insensitive, must not be null)
      * @param inputStream the input stream for the object content
+     * @param errorMessage optional error message
      * @throws IOException              if copying the input stream fails
      * @throws NullPointerException     if headers is null
      */
+    public SingleObjectResponse(Map<String, String> headers, InputStream inputStream, String errorMessage) throws IOException {
+        this(headers, inputStream, errorMessage, true);
+    }
+
+    /**
+     * Convenience constructor that copies the provided stream into memory.
+     */
     public SingleObjectResponse(Map<String, String> headers, InputStream inputStream) throws IOException {
-        this(headers, inputStream, null);
+        this(headers, inputStream, null, true);
     }
 
     /**

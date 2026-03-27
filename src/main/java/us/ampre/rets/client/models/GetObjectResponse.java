@@ -391,6 +391,111 @@ public class GetObjectResponse {
         };
     }
 
+    /**
+     * Streaming iterator variant: returns SingleObjectResponse instances that do not copy
+     * the underlying InputStream. This is intended for callers that want to stream data
+     * directly to disk or process without an intermediate memory buffer.
+     */
+    public <T extends SingleObjectResponse> GetObjectIterator<T> streamingIterator(int bufferSize) throws RetsException {
+        // Probe for empty stream without consuming data
+        try {
+            if (this.inputStream == null) {
+                throw new RetsException("Empty input stream");
+            }
+            if (this.inputStream.markSupported()) {
+                this.inputStream.mark(1);
+                int first = this.inputStream.read();
+                if (first == -1) {
+                    throw new RetsException("Empty input stream");
+                }
+                this.inputStream.reset();
+            }
+        } catch (IOException e) {
+            throw new RetsException("Failed to probe input stream", e);
+        }
+
+        if (this.exhausted)
+            throw new RetsException("Response was exhausted - cannot request iterator a second time");
+        this.exhausted = true;
+
+        if (this.errorResponse != null) {
+            return new GetObjectIterator<>() {
+                private boolean returned = false;
+
+                @Override
+                public boolean hasNext() {
+                    return returned == false;
+                }
+
+                @Override
+                public T next() {
+                    if (returned) {
+                        throw new NoSuchElementException("No more elements");
+                    }
+                    returned = true;
+                    return (T) errorResponse;
+                }
+
+                @Override
+                public void close() {
+                    // No-op
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+
+        if (this.emptyResponse)
+            return (GetObjectIterator<T>) EMPTY_OBJECT_RESPONSE_ITERATOR;
+
+        if (this.isMultipart) {
+            try {
+                return GetObjectResponseStreamingIterator.createIterator(this, bufferSize);
+            } catch (Exception e) {
+                throw new RetsException("Error creating multipart streaming GetObjectIterator", e);
+            }
+        }
+
+        // Non-multipart streaming: return the full response as a single SingleObjectResponse that does NOT copy
+        final InputStream singleStream = this.getInputStream();
+        return new GetObjectIterator<>() {
+            private boolean returned = false;
+
+            @Override
+            public boolean hasNext() {
+                return returned == false;
+            }
+
+            @Override
+            public T next() {
+                if (returned) throw new NoSuchElementException("No more elements");
+                returned = true;
+                try {
+                    return (T) new SingleObjectResponse(headers, singleStream, null, false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                try { singleStream.close(); } catch (IOException ignored) {}
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
+    public <T extends SingleObjectResponse> GetObjectIterator<T> streamingIterator() throws RetsException {
+        return streamingIterator(DEFAULT_BUFFER_SIZE);
+    }
+
     public InputStream getInputStream() {
         return this.inputStream;
     }
