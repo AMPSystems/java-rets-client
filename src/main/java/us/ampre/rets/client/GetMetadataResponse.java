@@ -40,7 +40,7 @@ public class GetMetadataResponse {
                 handleNoMetadataFound(retsElement);
             } else {
                 InvalidReplyCodeException e = new InvalidReplyCodeException(replyCode);
-                e.setRemoteMessage(retsElement.getAttributeValue(retsElement.getAttributeValue("ReplyText")));
+                e.setRemoteMessage(retsElement.getAttributeValue("ReplyText"));
                 throw e;
             }
         } catch (JDOMException | IOException e) {

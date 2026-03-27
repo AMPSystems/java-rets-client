@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.net.HttpCookie;
 
 import java.io.ByteArrayInputStream;
 
@@ -51,14 +53,87 @@ public class RetsHttpResponseImpl implements RetsHttpResponse, AutoCloseable {
         }
     }
 
+    // Robust Set-Cookie parsing using java.net.HttpCookie with a safe fallback
+    public static Map<String, String> parseSetCookieHeader(String headerValue) {
+        Map<String, String> result = new CaseInsensitiveTreeMap<>();
+        if (headerValue == null) return result;
+        // If header contains quoted values, use manual parser to preserve embedded semicolons
+        if (headerValue.indexOf('"') >= 0) {
+            // fall through to manual parse below
+        } else {
+            // Try the standard parser when no quotes are present
+            try {
+                List<HttpCookie> httpCookies = HttpCookie.parse(headerValue);
+                for (HttpCookie cookie : httpCookies) {
+                    result.put(cookie.getName(), cookie.getValue());
+                }
+                return result;
+            } catch (IllegalArgumentException ignored) {
+                // Fall through to manual parsing if the header is malformed
+            }
+        }
+
+        // Manual parse that supports quoted values containing semicolons
+        int len = headerValue.length();
+        int i = 0;
+        while (i < len) {
+            // Skip whitespace and separators
+            while (i < len && (headerValue.charAt(i) == ' ' || headerValue.charAt(i) == ';')) i++;
+            if (i >= len) break;
+            int nameStart = i;
+            while (i < len && headerValue.charAt(i) != '=' && headerValue.charAt(i) != ';') i++;
+            if (i >= len) break;
+            String name = headerValue.substring(nameStart, i).trim();
+            String value = "";
+            if (i < len && headerValue.charAt(i) == '=') {
+                i++; // skip '='
+                if (i < len && headerValue.charAt(i) == '"') {
+                    // Quoted value: read until closing quote
+                    i++; // skip opening quote
+                    int valStart = i;
+                    while (i < len) {
+                        if (headerValue.charAt(i) == '"') {
+                            value = headerValue.substring(valStart, i);
+                            i++; // skip closing quote
+                            break;
+                        }
+                        i++;
+                    }
+                    if (i >= len && value.isEmpty()) {
+                        // Unterminated quote: take rest
+                        value = headerValue.substring(valStart);
+                    }
+                    // Skip remaining attributes until next semicolon
+                    while (i < len && headerValue.charAt(i) != ';') i++;
+                } else {
+                    int valStart = i;
+                    while (i < len && headerValue.charAt(i) != ';') i++;
+                    value = headerValue.substring(valStart, i).trim();
+                }
+            } else {
+                // Attribute without value: skip until semicolon
+                while (i < len && headerValue.charAt(i) != ';') i++;
+                continue;
+            }
+            if (!name.isEmpty()) result.put(name, value);
+        }
+        return result;
+    }
+
     private void populateCookies() {
         // For new cookies from Set-Cookie headers
         for (Header cookieHeader : response.getHeaders("Set-Cookie")) {
-            String[] cookieParts = cookieHeader.getValue().split(";");
-            for (String cookie : cookieParts) {
-                String[] parts = cookie.split("=", 2);
-                if (parts.length == 2) {
-                    cookies.put(parts[0].trim(), parts[1].trim());
+            try {
+                Map<String, String> parsed = parseSetCookieHeader(cookieHeader.getValue());
+                this.cookies.putAll(parsed);
+            } catch (Exception e) {
+                // fallback to naive parsing
+                String[] cookieParts = cookieHeader.getValue().split(";");
+                for (String cookie : cookieParts) {
+                    String[] parts = cookie.split("=", 2);
+                    if (parts.length == 2) {
+                        cookies.put(parts[0].trim(), parts[1].trim());
+                    }
                 }
             }
         }
@@ -67,13 +142,8 @@ public class RetsHttpResponseImpl implements RetsHttpResponse, AutoCloseable {
     private void populateCookies(Map<String, String> cookies) {
         this.cookies.putAll(cookies);
         for (Header cookieHeader : response.getHeaders("Set-Cookie")) {
-            String[] cookieParts = cookieHeader.getValue().split(";");
-            for (String cookie : cookieParts) {
-                String[] parts = cookie.split("=", 2);
-                if (parts.length == 2) {
-                    cookies.put(parts[0].trim(), parts[1].trim());
-                }
-            }
+            Map<String, String> parsed = parseSetCookieHeader(cookieHeader.getValue());
+            cookies.putAll(parsed);
         }
     }
 

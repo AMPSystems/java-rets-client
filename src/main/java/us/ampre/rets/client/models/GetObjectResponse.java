@@ -126,7 +126,7 @@ public class GetObjectResponse {
      * @param boundaryValue the boundary string
      * @return the unescaped boundary string
      */
-    private static String unescapeBoundary(String boundaryValue) {
+    public static String unescapeBoundary(String boundaryValue) {
         if (boundaryValue.startsWith("\""))
             boundaryValue = boundaryValue.substring(1);
         if (boundaryValue.endsWith("\""))

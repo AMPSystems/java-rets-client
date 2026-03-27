@@ -74,7 +74,7 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
                             else
                                 this.invalidReplyCodeHandler.invalidRetsStatusReplyCode(replyCode);
                         } catch (InvalidReplyCodeException e) {
-                            String text = atts.getValue("", "ReplyText");
+                            String text = atts.getValue("ReplyText");
                             e.setRemoteMessage(text);
                             throw new SAXException(e);
                         }
