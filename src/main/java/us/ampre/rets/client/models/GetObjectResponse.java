@@ -84,10 +84,14 @@ public class GetObjectResponse {
         Objects.requireNonNull(in, "inputStream");
 
         boolean isXml = getType() != null && getType().contains("text/xml");
+        byte[] xmlBytes = null;
         try {
             if (isXml) {
-                // Small XML error responses are safe to buffer so we can parse them
-                this.inputStream = InputStreamUtil.copyStream(in);
+                // Small XML error responses are safe to buffer so we can parse them.
+                // Read bytes so we can create independent InputStreams for parsing and later use.
+                java.io.ByteArrayInputStream copied = InputStreamUtil.copyStream(in);
+                xmlBytes = copied.readAllBytes();
+                this.inputStream = new ByteArrayInputStream(xmlBytes);
             } else {
                 // For normal responses keep the original stream buffered so we can stream parts
                 this.inputStream = new BufferedInputStream(in);
@@ -105,7 +109,7 @@ public class GetObjectResponse {
             try {
                 this.emptyResponse = true;
                 SAXBuilder builder = new SAXBuilder();
-                Document mDocument = builder.build(getInputStream());
+                Document mDocument = builder.build(xmlBytes != null ? new ByteArrayInputStream(xmlBytes) : getInputStream());
                 Element root = mDocument.getRootElement();
                 if ("RETS".equals(root.getName())) {
                     replyCode = NumberUtils.toInt(root.getAttributeValue("ReplyCode"));
