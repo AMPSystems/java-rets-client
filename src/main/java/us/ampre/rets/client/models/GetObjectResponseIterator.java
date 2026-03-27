@@ -3,10 +3,12 @@ package us.ampre.rets.client.models;
 import org.apache.commons.lang3.StringUtils;
 import us.ampre.rets.client.GetObjectIterator;
 import us.ampre.rets.client.SinglePartInputStream;
+import us.ampre.rets.client.NonMultipartGetObjectResponseIterator;
 import us.ampre.rets.client.exceptions.RetsRuntimeException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,28 +40,91 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
      * @throws Exception if an error occurs during iterator creation
      */
     public static <T extends SingleObjectResponse> GetObjectIterator<T> createIterator(final GetObjectResponse response, int streamBufferSize) throws Exception {
-        String boundary = response.getBoundary();
+        String boundary = null;
+        try {
+            boundary = response.getBoundary();
+        } catch (IllegalArgumentException iae) {
+            // Header was malformed or missing boundary - attempt best-effort detection from stream
+            InputStream in = response.getInputStream();
+            if (in != null && in.markSupported()) {
+                try {
+                    int detectionLimit = Math.max(streamBufferSize, 65536);
+                    in.mark(detectionLimit);
+                    byte[] buf = new byte[detectionLimit];
+                    int read = in.read(buf);
+                    if (read > 0) {
+                        String sample = new String(buf, 0, read);
+                        String[] lines = sample.split("\\r?\\n");
+                        for (String line : lines) {
+                            String t = line.trim();
+                            if (t.startsWith("--")) {
+                                String token = t.substring(2);
+                                if (token.endsWith("--")) token = token.substring(0, token.length() - 2);
+                                token = token.trim();
+                                if (!token.isEmpty()) {
+                                    boundary = token;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    in.reset();
+                } catch (IOException ignored) {
+                    try { in.reset(); } catch (IOException e) { /* ignore */ }
+                }
+            }
+        }
+
         if (boundary != null)
             return new GetObjectResponseIterator(response, boundary, streamBufferSize);
 
-        return new GetObjectIterator<>() {
+        // Fallback: try treating the whole response as a single non-multipart object
+        try {
+            final NonMultipartGetObjectResponseIterator nm = new NonMultipartGetObjectResponseIterator(response.getHeaders(), response.getInputStream());
+            return new GetObjectIterator<>() {
+                private boolean returned = false;
 
-            public void close() throws IOException {
-                response.getInputStream().close();
-            }
+                @Override
+                public void close() throws IOException {
+                    nm.close();
+                }
 
-            public boolean hasNext() {
-                return false;
-            }
+                @Override
+                public boolean hasNext() {
+                    return nm.hasNext();
+                }
 
-            public T next() {
-                throw new NoSuchElementException();
-            }
+                @Override
+                public T next() {
+                    return (T) nm.next();
+                }
 
-            public void remove() {
-                throw new UnsupportedOperationException("");
-            }
-        };
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("");
+                }
+            };
+        } catch (Exception e) {
+            // If even fallback fails, return an empty iterator that will close the underlying stream on close
+            return new GetObjectIterator<>() {
+
+                public void close() throws IOException {
+                    response.getInputStream().close();
+                }
+
+                public boolean hasNext() {
+                    return false;
+                }
+
+                public T next() {
+                    throw new NoSuchElementException();
+                }
+
+                public void remove() {
+                    throw new UnsupportedOperationException("");
+                }
+            };
+        }
     }
 
     /**

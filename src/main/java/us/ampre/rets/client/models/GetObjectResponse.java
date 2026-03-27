@@ -188,74 +188,36 @@ public class GetObjectResponse {
     public String getBoundary() {
         String contentTypeValue = getType();
         if (contentTypeValue == null) return null;
-        // First, try to use the structured parser
+        BasicHeaderValueParser parser = new BasicHeaderValueParser();
+        HeaderElement[] contentTypeElements;
+
         try {
-            BasicHeaderValueParser parser = new BasicHeaderValueParser();
             ParserCursor cursor = new ParserCursor(0, contentTypeValue.length());
-            HeaderElement[] contentTypeElements = parser.parseElements(contentTypeValue, cursor);
-            if (contentTypeElements != null && contentTypeElements.length == 1) {
-                for (NameValuePair param : contentTypeElements[0].getParameters()) {
-                    if ("boundary".equalsIgnoreCase(param.getName())) {
-                        return unescapeBoundary(param.getValue());
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-            // Fall back to manual parsing below
+            contentTypeElements = parser.parseElements(contentTypeValue, cursor);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not parse Content-Type header value: " + contentTypeValue, e);
         }
 
-        // Manual extraction: look for "boundary=" token
-        String lower = contentTypeValue.toLowerCase();
-        int idx = lower.indexOf("boundary=");
-        if (idx >= 0) {
-            String after = contentTypeValue.substring(idx + "boundary=".length()).trim();
-            if (after.startsWith("\"")) {
-                int endQuote = after.indexOf('"', 1);
-                if (endQuote > 0) {
-                    return unescapeBoundary(after.substring(1, endQuote));
-                } else {
-                    return unescapeBoundary(after.substring(1));
-                }
-            } else {
-                int semi = after.indexOf(';');
-                String val = (semi > 0) ? after.substring(0, semi) : after;
-                return unescapeBoundary(val.trim());
-            }
+        if (contentTypeElements.length != 1) {
+            throw new IllegalArgumentException("Multipart response appears to have a bad Content-Type header value: " + contentTypeValue);
         }
 
-        // Best-effort detection: scan a small prefix of the input stream for a boundary line
-        if (this.inputStream != null && this.inputStream.markSupported()) {
-            try {
-                int detectionLimit = Math.max(DEFAULT_BUFFER_SIZE, 65536);
-                this.inputStream.mark(detectionLimit);
-                byte[] buf = new byte[detectionLimit];
-                int read = this.inputStream.read(buf);
-                if (read > 0) {
-                    String sample = new String(buf, 0, read);
-                    String[] lines = sample.split("\\r?\\n");
-                    for (String line : lines) {
-                        String t = line.trim();
-                        if (t.startsWith("--")) {
-                            String token = t.substring(2);
-                            if (token.endsWith("--")) token = token.substring(0, token.length() - 2);
-                            token = token.trim();
-                            if (!token.isEmpty()) {
-                                this.inputStream.reset();
-                                return unescapeBoundary(token);
-                            }
-                        }
-                    }
-                }
-                this.inputStream.reset();
-            } catch (IOException e) {
-                try {
-                    this.inputStream.reset();
-                } catch (IOException ignored) {
-                }
+        // Extract the boundary parameter from the single HeaderElement
+        String boundary = null;
+        for (NameValuePair param : contentTypeElements[0].getParameters()) {
+            if ("boundary".equalsIgnoreCase(param.getName())) {
+                boundary = param.getValue();
+                break;
             }
         }
+        if (boundary == null) {
+            throw new IllegalArgumentException("Missing boundary in Content-Type header: " + contentTypeValue);
+        }
+        return unescapeBoundary(boundary);
+    }
 
-        return null;
+    public Map<String, String> getHeaders() {
+        return this.headers;
     }
 
     /**
