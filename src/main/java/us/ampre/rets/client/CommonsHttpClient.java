@@ -153,7 +153,7 @@ public class CommonsHttpClient extends RetsHttpClient {
         final String userAgent = this.getHeaderValue(method, USER_AGENT);
         final String requestId = this.getHeaderValue(method, RETS_REQUEST_ID);
         final String sessionId = cookies.get(RETS_SESSION_ID);
-        final String retsVersion = this.getHeaderValue(method, RETS_VERSION);
+        final String retsVersion = StringUtils.trimToEmpty(this.getHeaderValue(method, RETS_VERSION));
         String secretHash = DigestUtils.md5Hex(String.format("%s:%s", userAgent, this.userAgentPassword));
         String pieces = String.format("%s:%s:%s:%s", secretHash, StringUtils.trimToEmpty(requestId), StringUtils.trimToEmpty(sessionId), retsVersion);
         return String.format("Digest %s", DigestUtils.md5Hex(pieces));
