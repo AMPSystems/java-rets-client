@@ -93,8 +93,48 @@ public class GetObjectResponse {
                 xmlBytes = copied.readAllBytes();
                 this.inputStream = new ByteArrayInputStream(xmlBytes);
             } else {
-                // For normal responses keep the original stream buffered so we can stream parts
-                this.inputStream = new BufferedInputStream(in);
+                // For non-XML (regular) responses, create an independent stream immediately so the
+                // original InputStream passed to the constructor may be consumed by callers without
+                // affecting this response. Small streams are buffered in-memory; large/unknown
+                // streams are copied to a temp file.
+                try {
+                    boolean useInMemory = false;
+                    try {
+                        if (in instanceof java.io.ByteArrayInputStream) {
+                            useInMemory = true;
+                        } else {
+                            int avail = in.available();
+                            useInMemory = (avail > 0 && avail <= 64 * 1024);
+                        }
+                    } catch (IOException ignored) {
+                        // If available() fails, treat as large and copy to temp file
+                        useInMemory = false;
+                    }
+
+                    if (useInMemory) {
+                        java.io.ByteArrayInputStream bais = InputStreamUtil.copyStream(in);
+                        byte[] data = bais.readAllBytes();
+                        this.inputStream = new ByteArrayInputStream(data);
+                    } else {
+                        final java.nio.file.Path tmp = InputStreamUtil.copyStreamToTempFile(in, "rets-object");
+                        java.io.FileInputStream fis = new java.io.FileInputStream(tmp.toFile());
+                        this.inputStream = new java.io.FilterInputStream(fis) {
+                            @Override
+                            public void close() throws IOException {
+                                try {
+                                    super.close();
+                                } finally {
+                                    try {
+                                        java.nio.file.Files.deleteIfExists(tmp);
+                                    } catch (IOException ignored) {
+                                    }
+                                }
+                            }
+                        };
+                    }
+                } catch (IOException e) {
+                    throw new RetsException("Failed to copy input stream", e);
+                }
             }
         } catch (IOException e) {
             throw new RetsException("Failed to copy input stream", e);
@@ -316,11 +356,39 @@ public class GetObjectResponse {
                 throw new RetsException("Error creating multipart GetObjectIterator", e);
             }
         }
-        // For non-multipart, stream to disk-backed iterator to avoid OOM
-        return new NonMultipartGetObjectResponseIterator(
-                this.headers,
-                this.getInputStream()
-        );
+        // For non-multipart, return a single-use iterator that yields the full response as a
+        // single SingleObjectResponse. The constructor ensured the response has an independent
+        // InputStream (either memory-backed or file-backed) so this iterator can safely expose it.
+        final InputStream singleStream = this.getInputStream();
+        return new GetObjectIterator<>() {
+            private boolean returned = false;
+
+            @Override
+            public boolean hasNext() {
+                return returned == false;
+            }
+
+            @Override
+            public T next() {
+                if (returned) throw new NoSuchElementException("No more elements");
+                returned = true;
+                try {
+                    return (T) new SingleObjectResponse(headers, singleStream);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void close() throws IOException {
+                try { singleStream.close(); } catch (IOException ignored) {}
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     public InputStream getInputStream() {
