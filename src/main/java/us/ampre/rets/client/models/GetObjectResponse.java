@@ -14,8 +14,10 @@ import us.ampre.rets.client.GetObjectIterator;
 import us.ampre.rets.client.NonMultipartGetObjectResponseIterator;
 import us.ampre.rets.client.ReplyCode;
 import us.ampre.rets.client.exceptions.RetsException;
+import us.ampre.rets.client.utils.InputStreamUtil;
 import us.ampre.rets.common.util.CaseInsensitiveTreeMap;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +59,7 @@ public class GetObjectResponse {
             };
 
     private final Map<String, String> headers;
-    private final byte[] inputStreamData;
+    private final InputStream inputStream;
     private final boolean isMultipart;
     private boolean emptyResponse;
     private boolean exhausted;
@@ -80,12 +82,20 @@ public class GetObjectResponse {
         this.headers = new CaseInsensitiveTreeMap<>(Objects.requireNonNull(headers, "headers"));
         this.isMultipart = getType() != null && getType().contains("multipart");
         Objects.requireNonNull(in, "inputStream");
+
+        boolean isXml = getType() != null && getType().contains("text/xml");
         try {
-            this.inputStreamData = in.readAllBytes();
+            if (isXml) {
+                // Small XML error responses are safe to buffer so we can parse them
+                this.inputStream = InputStreamUtil.copyStream(in);
+            } else {
+                // For normal responses keep the original stream buffered so we can stream parts
+                this.inputStream = new BufferedInputStream(in);
+            }
         } catch (IOException e) {
             throw new RetsException("Failed to copy input stream", e);
         }
-        boolean isXml = getType() != null && getType().contains("text/xml");
+
         boolean containsContentId = headers.containsKey(SingleObjectResponse.CONTENT_ID);
         boolean nonMultiPartXmlWithoutContentId = this.isMultipart == false && isXml && containsContentId == false;
         boolean multiPartXml = this.isMultipart && isXml;
@@ -127,6 +137,7 @@ public class GetObjectResponse {
      * @return the unescaped boundary string
      */
     public static String unescapeBoundary(String boundaryValue) {
+        if (boundaryValue == null) return null;
         if (boundaryValue.startsWith("\""))
             boundaryValue = boundaryValue.substring(1);
         if (boundaryValue.endsWith("\""))
@@ -166,44 +177,85 @@ public class GetObjectResponse {
 
     /**
      * Extracts the multipart boundary from the Content-Type header.
-     * <p>
-     * If the Content-Type header is missing, returns {@code null}.
-     * If the header is present but malformed, or the boundary parameter is missing,
-     * throws an {@link IllegalArgumentException}.
-     * </p>
      *
-     * @return the boundary string, or {@code null} if Content-Type is not set
-     * @throws IllegalArgumentException if the Content-Type header is malformed or missing the boundary parameter
+     * This method is tolerant: it will attempt to parse standard boundary parameters,
+     * fall back to a manual extraction if the header is nonstandard, and finally
+     * attempt a best-effort scan of the response stream for lines starting with "--" when possible.
+     * If no boundary can be determined, {@code null} is returned.
+     *
+     * @return the boundary string, or {@code null} if none could be determined
      */
     public String getBoundary() {
         String contentTypeValue = getType();
         if (contentTypeValue == null) return null;
-        BasicHeaderValueParser parser = new BasicHeaderValueParser();
-        HeaderElement[] contentTypeElements;
-
+        // First, try to use the structured parser
         try {
+            BasicHeaderValueParser parser = new BasicHeaderValueParser();
             ParserCursor cursor = new ParserCursor(0, contentTypeValue.length());
-            contentTypeElements = parser.parseElements(contentTypeValue, cursor);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not parse Content-Type header value: " + contentTypeValue, e);
+            HeaderElement[] contentTypeElements = parser.parseElements(contentTypeValue, cursor);
+            if (contentTypeElements != null && contentTypeElements.length == 1) {
+                for (NameValuePair param : contentTypeElements[0].getParameters()) {
+                    if ("boundary".equalsIgnoreCase(param.getName())) {
+                        return unescapeBoundary(param.getValue());
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall back to manual parsing below
         }
 
-        if (contentTypeElements.length != 1) {
-            throw new IllegalArgumentException("Multipart response appears to have a bad Content-Type header value: " + contentTypeValue);
-        }
-
-        // Extract the boundary parameter from the single HeaderElement
-        String boundary = null;
-        for (NameValuePair param : contentTypeElements[0].getParameters()) {
-            if ("boundary".equalsIgnoreCase(param.getName())) {
-                boundary = param.getValue();
-                break;
+        // Manual extraction: look for "boundary=" token
+        String lower = contentTypeValue.toLowerCase();
+        int idx = lower.indexOf("boundary=");
+        if (idx >= 0) {
+            String after = contentTypeValue.substring(idx + "boundary=".length()).trim();
+            if (after.startsWith("\"")) {
+                int endQuote = after.indexOf('"', 1);
+                if (endQuote > 0) {
+                    return unescapeBoundary(after.substring(1, endQuote));
+                } else {
+                    return unescapeBoundary(after.substring(1));
+                }
+            } else {
+                int semi = after.indexOf(';');
+                String val = (semi > 0) ? after.substring(0, semi) : after;
+                return unescapeBoundary(val.trim());
             }
         }
-        if (boundary == null) {
-            throw new IllegalArgumentException("Missing boundary in Content-Type header: " + contentTypeValue);
+
+        // Best-effort detection: scan a small prefix of the input stream for a boundary line
+        if (this.inputStream != null && this.inputStream.markSupported()) {
+            try {
+                int detectionLimit = Math.max(DEFAULT_BUFFER_SIZE, 65536);
+                this.inputStream.mark(detectionLimit);
+                byte[] buf = new byte[detectionLimit];
+                int read = this.inputStream.read(buf);
+                if (read > 0) {
+                    String sample = new String(buf, 0, read);
+                    String[] lines = sample.split("\\r?\\n");
+                    for (String line : lines) {
+                        String t = line.trim();
+                        if (t.startsWith("--")) {
+                            String token = t.substring(2);
+                            if (token.endsWith("--")) token = token.substring(0, token.length() - 2);
+                            token = token.trim();
+                            if (!token.isEmpty()) {
+                                this.inputStream.reset();
+                                return unescapeBoundary(token);
+                            }
+                        }
+                    }
+                }
+                this.inputStream.reset();
+            } catch (IOException e) {
+                try {
+                    this.inputStream.reset();
+                } catch (IOException ignored) {
+                }
+            }
         }
-        return unescapeBoundary(boundary);
+
+        return null;
     }
 
     /**
@@ -234,9 +286,23 @@ public class GetObjectResponse {
      * @throws RetsException if the response is exhausted or malformed
      */
     public <T extends SingleObjectResponse> GetObjectIterator<T> iterator(int bufferSize) throws RetsException {
-        if (this.inputStreamData == null || this.inputStreamData.length == 0) {
-            throw new RetsException("Empty input stream");
+        // Probe for empty stream without consuming data
+        try {
+            if (this.inputStream == null) {
+                throw new RetsException("Empty input stream");
+            }
+            if (this.inputStream.markSupported()) {
+                this.inputStream.mark(1);
+                int first = this.inputStream.read();
+                if (first == -1) {
+                    throw new RetsException("Empty input stream");
+                }
+                this.inputStream.reset();
+            }
+        } catch (IOException e) {
+            throw new RetsException("Failed to probe input stream", e);
         }
+
         if (this.exhausted)
             throw new RetsException("Response was exhausted - cannot request iterator a second time");
         this.exhausted = true;
@@ -276,7 +342,6 @@ public class GetObjectResponse {
 
         if (this.isMultipart) {
             try {
-                // Pass a new ByteArrayInputStream to the iterator for multipart
                 return GetObjectResponseIterator.createIterator(
                         this,
                         bufferSize
@@ -285,14 +350,14 @@ public class GetObjectResponse {
                 throw new RetsException("Error creating multipart GetObjectIterator", e);
             }
         }
-        // For non-multipart, always use a new ByteArrayInputStream
+        // For non-multipart, stream to disk-backed iterator to avoid OOM
         return new NonMultipartGetObjectResponseIterator(
                 this.headers,
-                new java.io.ByteArrayInputStream(this.inputStreamData)
+                this.getInputStream()
         );
     }
 
     public InputStream getInputStream() {
-        return new ByteArrayInputStream(this.inputStreamData);
+        return this.inputStream;
     }
 }
