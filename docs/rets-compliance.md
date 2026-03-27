@@ -9,8 +9,8 @@ This repository was audited against the RETS 1.7.2 specification (docs/rets_1_7_
 Summary of changes
 ------------------
 - UA digest (RETS-UA-Authorization, spec 3.10)
-  - Added unit tests (CommonsHttpClientUaAuthVectorTest) validating digest computation against the spec vectors.
-  - Existing implementation in CommonsHttpClient.calculateUaAuthHeader was verified and retained.
+  - Added unit tests (CommonsHttpClientUaAuthVectorTest, CommonsHttpClientUaAuthEdgeCaseTest) validating digest computation and edge-cases.
+  - Implementation in CommonsHttpClient.calculateUaAuthHeader was verified; trimmed RETS-Version for robustness.
 
 - Set-Cookie parsing
   - Replaced brittle, naive parsing with parseSetCookieHeader in RetsHttpResponseImpl.
@@ -25,16 +25,17 @@ Summary of changes
 Tests & verification
 --------------------
 - Command: ./gradlew test
-- Result: 76 tests passed, 0 failed
+- Result: 79 tests passed, 0 failed
 - Test report: build/reports/tests/test/index.html
 
 Files changed (high level)
 -------------------------
+- src/main/java/us/ampre/rets/client/CommonsHttpClient.java (UA digest: trim RETS-Version)
 - src/main/java/us/ampre/rets/client/RetsHttpResponseImpl.java (Set-Cookie parsing)
 - src/main/java/us/ampre/rets/client/GetMetadataResponse.java (ReplyText fix)
 - src/main/java/us/ampre/rets/client/SearchResultHandler.java (ReplyText fix)
 - src/main/java/us/ampre/rets/client/models/GetObjectResponse.java (unescapeBoundary made testable)
-- src/test/java/us/ampre/rets/client/* (UA auth vector, cookie parsing, boundary tests)
+- src/test/java/us/ampre/rets/client/* (UA auth vector, UA edge-case, cookie parsing, boundary tests)
 
 Outstanding recommendations
 ---------------------------

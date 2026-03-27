@@ -23,11 +23,12 @@ Verification steps
 
 Results
 -------
-- All unit tests passed: 76 tests run, 76 passed, 0 failed.
+- All unit tests passed: 79 tests run, 79 passed, 0 failed.
 - Relevant tests:
   - CommonsHttpClientUaAuthVectorTest
+  - CommonsHttpClientUaAuthEdgeCaseTest
   - RetsHttpResponseImplCookieParsingTest
-  - GetObjectBoundaryTest
+  - GetObjectResponseTests
 
 Checklist status (high level)
 -----------------------------
