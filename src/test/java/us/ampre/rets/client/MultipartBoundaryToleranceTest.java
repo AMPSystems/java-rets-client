@@ -3,6 +3,7 @@ package us.ampre.rets.client;
 import org.junit.jupiter.api.Test;
 import us.ampre.rets.client.GetObjectIterator;
 import us.ampre.rets.client.models.GetObjectResponse;
+import us.ampre.rets.client.models.GetObjectResponseIterator;
 import us.ampre.rets.client.models.SingleObjectResponse;
 
 import java.io.ByteArrayInputStream;
