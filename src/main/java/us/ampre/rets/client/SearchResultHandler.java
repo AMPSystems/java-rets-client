@@ -14,7 +14,17 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Handles XML parsing from response setting the proper fields using a SearchResultCollector
+ * Parses RETS search results XML and forwards extracted data to a {@link SearchResultCollector}.
+ *
+ * <p>This {@link org.xml.sax.ContentHandler} / {@link org.xml.sax.ErrorHandler} implementation
+ * processes RETS-specific elements such as {@code RETS}, {@code RETS-STATUS}, {@code COUNT},
+ * {@code DELIMITER}, {@code COLUMNS}, {@code DATA}, and {@code MAXROWS}. It enforces server
+ * reply codes via {@link InvalidReplyCodeHandler} and applies a {@link CompactRowPolicy}
+ * to determine whether rows should be accepted.
+ *
+ * <p>Instances are not thread-safe and should be used for a single parsing operation.
+ *
+ * @author Chris Hailey
  */
 @Slf4j
 public class SearchResultHandler implements ContentHandler, ErrorHandler {
@@ -29,10 +39,22 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
     private final InvalidReplyCodeHandler invalidReplyCodeHandler;
     private final CompactRowPolicy compactRowPolicy;
 
+    /**
+     * Creates a SearchResultHandler that forwards parsed rows to the given collector.
+     *
+     * @param r the collector to receive parsed rows; must not be null
+     */
     public SearchResultHandler(SearchResultCollector r) {
         this(r, InvalidReplyCodeHandler.FAIL, CompactRowPolicy.DEFAULT);
     }
 
+    /**
+     * Creates a handler with explicit reply-code handling and row policy.
+     *
+     * @param r the collector to receive parsed rows; must not be null
+     * @param invalidReplyCodeHandler strategy for handling non-success reply codes; must not be null
+     * @param badRowPolicy policy to decide whether malformed compact rows should be included
+     */
     public SearchResultHandler(SearchResultCollector r, InvalidReplyCodeHandler invalidReplyCodeHandler, CompactRowPolicy badRowPolicy) {
         this.compactRowPolicy = badRowPolicy;
         if (r == null)
@@ -49,6 +71,19 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
         this.invalidReplyCodeHandler = invalidReplyCodeHandler;
     }
 
+    /**
+     * SAX callback invoked when a start element is encountered during parsing.
+     * <p>
+     * Recognized element names: {@code RETS}, {@code RETS-STATUS}, {@code COUNT}, {@code DELIMITER},
+     * {@code COLUMNS}, {@code DATA}, and {@code MAXROWS}. Reply codes are validated and may
+     * cause an {@link SAXException} if invalid and configured to fail.
+     *
+     * @param uri namespace URI, may be empty
+     * @param localName local (unprefixed) name
+     * @param qName qualified name (with prefix)
+     * @param atts attributes attached to the element
+     * @throws SAXException on parsing errors or invalid reply codes
+     */
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         String name = localName;
         if (localName.isEmpty()) {
@@ -122,6 +157,14 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
 
     }
 
+    /**
+     * SAX callback for character data. When inside a {@code COLUMNS} or {@code DATA} element
+     * the characters are appended to an internal buffer for later processing.
+     *
+     * @param ch character array
+     * @param start start offset
+     * @param length number of characters
+     */
     public void characters(char[] ch, int start, int length) {
         if (this.currentEntry != null) {
             this.currentEntry.append(ch, start, length);
@@ -134,7 +177,15 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
     }
 
     /**
-     * do NOT use string.split() unless your prepared to deal with loss due to token boundary conditions
+     * Splits a compact-format input string using the configured delimiter.
+     * <p>
+     * The compact format uses a delimiter character (set by a {@code DELIMITER} tag). The input
+     * string is expected to start with the delimiter. This method preserves empty fields and
+     * does not use {@link String#split} to avoid token boundary losses.
+     *
+     * @param input the compact-format line to split
+     * @return array of field values (never null)
+     * @throws SAXParseException if the delimiter is not set or the input is malformed
      */
     private String[] split(String input) throws SAXParseException {
         if (this.delimiter == null) {
@@ -163,6 +214,16 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
         return list.toArray(new String[0]);
     }
 
+    /**
+     * SAX callback for end of element. When ending {@code COLUMNS} the collected column names are set
+     * on the collector; when ending {@code DATA} the row is split and passed to the collector subject
+     * to the compact row policy.
+     *
+     * @param uri namespace URI
+     * @param localName local name
+     * @param qName qualified name
+     * @throws SAXParseException for format errors
+     */
     public void endElement(String uri, String localName, String qName) throws SAXParseException {
         String name = localName;
         if (name.isEmpty()) {
@@ -227,6 +288,12 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
     }
 
 
+    /**
+     * Parses the given SAX {@link InputSource} using the handler's configuration.
+     *
+     * @param src the input source to parse
+     * @throws RetsException on parse errors
+     */
     public void parse(InputSource src) throws RetsException {
         parse(src, null);
     }
@@ -236,6 +303,14 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
      *
      */
 
+    /**
+     * Parses the provided input stream using an optional charset for encoding.
+     * The stream will be closed when parsing completes.
+     *
+     * @param str the input stream to parse; must not be null
+     * @param charset the character set to set on the {@link InputSource} if encoding is not present
+     * @throws RetsException on parse errors
+     */
     public void parse(InputStream str, String charset) throws RetsException {
         parse(new InputSource(str), charset);
         try {
@@ -247,6 +322,14 @@ public class SearchResultHandler implements ContentHandler, ErrorHandler {
 
     /**
      * Pareses given source with the given charset
+     */
+    /**
+     * Parses the given {@link InputSource} using the provided charset when necessary.
+     * This method configures a SAX parser and delegates to this handler.
+     *
+     * @param src the input source to parse
+     * @param charset optional charset to apply if the source has no encoding
+     * @throws RetsException on parsing errors
      */
     public void parse(InputSource src, String charset) throws RetsException {
         String encoding = src.getEncoding();

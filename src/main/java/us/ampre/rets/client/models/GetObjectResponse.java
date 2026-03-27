@@ -36,7 +36,7 @@ import java.util.Objects;
  * The input stream may be consumed for XML error handling.
  * The iterator returned is single-use; calling {@code iterator()} or {@code iterator(int)} more than once will throw an exception.
  *
- * @author: Ampre Chris Hailey
+ * @author Ampre Chris Hailey
  */
 public class GetObjectResponse {
     private static final int DEFAULT_BUFFER_SIZE = 8192;
