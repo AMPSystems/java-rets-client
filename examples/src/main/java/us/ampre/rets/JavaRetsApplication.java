@@ -1,0 +1,116 @@
+package us.ampre.rets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import us.ampre.rets.client.*;
+import us.ampre.rets.client.exceptions.RetsException;
+import us.ampre.rets.common.metadata.Metadata;
+import us.ampre.rets.common.metadata.types.MClass;
+import us.ampre.rets.common.metadata.types.MResource;
+import us.ampre.rets.common.metadata.types.MSystem;
+import us.ampre.rets.common.metadata.types.MTable;
+
+import java.net.MalformedURLException;
+
+@SpringBootApplication
+public class JavaRetsApplication implements CommandLineRunner {
+
+	private static final Logger log = LoggerFactory.getLogger(JavaRetsApplication.class);
+
+	private final RetsProperties retsProperties;
+
+	@Autowired
+	public JavaRetsApplication(RetsProperties retsProperties) {
+		this.retsProperties = retsProperties;
+	}
+
+	public static void main(String[] args) {
+
+		SpringApplication app = new SpringApplication(JavaRetsApplication.class);
+		// tell spring to not start the netty web server
+		app.setWebApplicationType(WebApplicationType.NONE);
+		app.run(args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		log.info("RETS Starting ...");
+		trulia();
+	}
+
+	public  void trulia() throws MalformedURLException {
+
+		//Create a RetsHttpClient (other constructors provide configuration i.e. timeout, gzip capability)
+		RetsHttpClient httpClient = new CommonsHttpClient();
+		RetsVersion retsVersion = RetsVersion.RETS_1_7_2;
+		String loginUrl = null;
+		if (retsProperties.getLoginUrl() != null) {
+			loginUrl = retsProperties.getLoginUrl();
+		} else {
+			log.error("loginUrl is null");
+			return;
+		}
+
+		//Create a RetsSession with RetsHttpClient
+		RetsSession session = new RetsSession(loginUrl, httpClient, retsVersion);
+
+		String username = null;
+		if (retsProperties.getUsername()  != null) {
+			username = retsProperties.getUsername();
+		} else {
+			log.error("username is null");
+		}
+		String password = null;
+		if (retsProperties.getPassword()  != null) {
+			password = retsProperties.getPassword();
+		} else {
+			log.error("password is null");
+			return;
+		}
+		String userAgent             = retsProperties.getUserAgent();
+		String userAgentPassword     = retsProperties.getUserAgentPassword();
+
+		//Set method as GET or POST
+		session.setMethod("POST");
+		try {
+			//Login
+			session.login(username, password);
+		} catch (RetsException e) {
+			log.error("", e);
+			return;
+		}
+
+		try {
+			Metadata m = session.getMetadata();
+
+			MSystem system = session.getMetadata().getSystem();
+			log.info("System: {} / {}", system.getSystemID(), system.getSystemDescription());
+			for(MResource resource: system.getMResources()) {
+				log.info("  Resource: {} / {}", resource.getResourceID(), resource.getDescription());
+				for(MClass classification: resource.getMClasses()) {
+					log.info("    Class: {} / {}", classification.getClassName(), classification.getDescription());
+					for (MTable mTable : classification.getMTables()) {
+						log.info("      Table: {} / {}", mTable.getSystemName(), mTable.getStandardName());
+					}
+				}
+			}
+		} catch (RetsException e) {
+			log.error("Exception traversing metadata tree.", e);
+		} finally {
+			if(session != null) {
+				try {
+					session.logout();
+				} catch(RetsException e) {
+					log.error("Exception ending RETS session/logout.", e);
+				}
+			}
+		}
+	}
+}
+
+

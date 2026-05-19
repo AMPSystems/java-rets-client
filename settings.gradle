@@ -5,3 +5,7 @@
  */
 
 rootProject.name = 'java-rets-client'
+include 'examples'
+
+// Ensure Gradle knows where the examples project lives (default is ./examples)
+project(':examples').projectDir = file('examples')

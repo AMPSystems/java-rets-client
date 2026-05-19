@@ -17,9 +17,28 @@ import us.ampre.rets.common.metadata.JDomCompactBuilder;
 import us.ampre.rets.common.metadata.MetadataException;
 import us.ampre.rets.common.metadata.JDomStandardBuilder;
 
+/**
+ * Parses RETS GetMetadata XML responses and exposes parsed {@link us.ampre.rets.common.metadata.MetaObject} array.
+ *
+ * <p>The constructor parses the input stream and dispatches to compact or standard
+ * metadata builders depending on the {@code compact} flag. When the server returns
+ * a "no metadata found" reply code, an empty array is returned.
+ *
+ * <p>Instances are immutable once constructed.
+ *
+ * @author Chris Hailey
+ */
 public class GetMetadataResponse {
     private MetaObject[] mMetadataObjs;
 
+    /**
+     * Parses metadata from the provided stream.
+     *
+     * @param stream the input stream containing the RETS metadata XML
+     * @param compact true to parse compact metadata format, false for standard format
+     * @param isStrict builder strictness to apply during parsing
+     * @throws RetsException on parse errors or invalid reply codes
+     */
     public GetMetadataResponse(InputStream stream, boolean compact, boolean isStrict) throws RetsException {
         try {
             SAXBuilder builder = new SAXBuilder();
@@ -40,7 +59,7 @@ public class GetMetadataResponse {
                 handleNoMetadataFound(retsElement);
             } else {
                 InvalidReplyCodeException e = new InvalidReplyCodeException(replyCode);
-                e.setRemoteMessage(retsElement.getAttributeValue(retsElement.getAttributeValue("ReplyText")));
+                e.setRemoteMessage(retsElement.getAttributeValue("ReplyText"));
                 throw e;
             }
         } catch (JDOMException | IOException e) {
@@ -76,6 +95,11 @@ public class GetMetadataResponse {
         }
     }
 
+    /**
+     * Returns the parsed metadata objects. May be an empty array if no metadata was found.
+     *
+     * @return an array of {@link MetaObject} instances (never null)
+     */
     public MetaObject[] getMetadata() {
         return this.mMetadataObjs;
     }
