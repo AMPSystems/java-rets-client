@@ -188,6 +188,10 @@ public class RetsTransport {
         LoginResponse response = new LoginResponse(this.capabilities.getLoginUrl());
 
         String sessionId = retsHttpResponse.getCookie(RETS_SESSION_ID_HEADER);
+        if (sessionId == null || sessionId.isEmpty()) {
+            // Try underscore variant for servers that send RETS_Session_ID
+            sessionId = retsHttpResponse.getCookie(RETS_SESSION_ID_HEADER.replace('-', '_'));
+        }
         response.setSessionId(sessionId);
         response.setStrict(this.strict);
         response.parse(retsHttpResponse.getInputStream(), this.version);

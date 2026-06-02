@@ -144,7 +144,15 @@ public class CommonsHttpClient extends RetsHttpClient {
     protected Map<String, String> getCookies() {
         Map<String, String> cookieMap = new CaseInsensitiveTreeMap<>();
         for (Cookie cookie : this.cookieStore.getCookies()) {
-            cookieMap.put(cookie.getName(), cookie.getValue());
+            String name = cookie.getName();
+            String value = cookie.getValue();
+            cookieMap.put(name, value);
+            // provide alternate hyphen/underscore variants for compatibility
+            if (name.indexOf('-') >= 0) {
+                cookieMap.put(name.replace('-', '_'), value);
+            } else if (name.indexOf('_') >= 0) {
+                cookieMap.put(name.replace('_', '-'), value);
+            }
         }
         return cookieMap;
     }
@@ -152,8 +160,11 @@ public class CommonsHttpClient extends RetsHttpClient {
     protected String calculateUaAuthHeader(HttpUriRequestBase method, Map<String, String> cookies) {
         final String userAgent = this.getHeaderValue(method, USER_AGENT);
         final String requestId = this.getHeaderValue(method, RETS_REQUEST_ID);
-        final String sessionId = cookies.get(RETS_SESSION_ID);
-        final String retsVersion = this.getHeaderValue(method, RETS_VERSION);
+        String sessionId = cookies.get(RETS_SESSION_ID);
+        if (sessionId == null || sessionId.isEmpty()) {
+            sessionId = cookies.get(RETS_SESSION_ID.replace('-', '_'));
+        }
+        final String retsVersion = StringUtils.trimToEmpty(this.getHeaderValue(method, RETS_VERSION));
         String secretHash = DigestUtils.md5Hex(String.format("%s:%s", userAgent, this.userAgentPassword));
         String pieces = String.format("%s:%s:%s:%s", secretHash, StringUtils.trimToEmpty(requestId), StringUtils.trimToEmpty(sessionId), retsVersion);
         return String.format("Digest %s", DigestUtils.md5Hex(pieces));

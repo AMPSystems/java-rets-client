@@ -3,7 +3,6 @@ package us.ampre.rets.client.models;
 import org.apache.commons.lang3.StringUtils;
 import us.ampre.rets.client.GetObjectIterator;
 import us.ampre.rets.client.SinglePartInputStream;
-import us.ampre.rets.client.NonMultipartGetObjectResponseIterator;
 import us.ampre.rets.client.exceptions.RetsRuntimeException;
 
 import java.io.BufferedInputStream;
@@ -15,12 +14,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * Iterator implementation for parsing multipart RETS GetObject responses.
- * Each iteration yields a SingleObjectResponse representing a part in the response.
- *
- * @param <T> The type of SingleObjectResponse
+ * Streaming iterator implementation for parsing multipart RETS GetObject responses.
+ * Each iteration yields a SingleObjectResponse backed by the raw InputStream (no copying).
  */
-public class GetObjectResponseIterator<T extends SingleObjectResponse> implements GetObjectIterator<T> {
+public class GetObjectResponseStreamingIterator<T extends SingleObjectResponse> implements GetObjectIterator<T> {
     public static final char CR = '\r';
     public static final char LF = '\n';
     public static final String EOL = CR + "" + LF;
@@ -30,15 +27,6 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
     private final String boundary;
     private Boolean hasNext;
 
-    /**
-     * Creates a new iterator for parsing a multipart RETS GetObject response.
-     * If the response does not contain a boundary, returns an empty iterator.
-     *
-     * @param response The RETS GetObjectResponse to iterate over
-     * @param streamBufferSize The buffer size for reading the response stream
-     * @return A GetObjectIterator for iterating over SingleObjectResponse objects
-     * @throws Exception if an error occurs during iterator creation
-     */
     public static <T extends SingleObjectResponse> GetObjectIterator<T> createIterator(final GetObjectResponse response, int streamBufferSize) throws Exception {
         String boundary = null;
         try {
@@ -76,11 +64,11 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
         }
 
         if (boundary != null)
-            return new GetObjectResponseIterator(response, boundary, streamBufferSize);
+            return new GetObjectResponseStreamingIterator(response, boundary, streamBufferSize);
 
         // Fallback: try treating the whole response as a single non-multipart object
         try {
-            final NonMultipartGetObjectResponseIterator nm = new NonMultipartGetObjectResponseIterator(response.getHeaders(), response.getInputStream());
+            final NonMultipartGetObjectStreamingIterator nm = new NonMultipartGetObjectStreamingIterator(response.getHeaders(), response.getInputStream());
             return new GetObjectIterator<>() {
                 private boolean returned = false;
 
@@ -127,27 +115,13 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
         }
     }
 
-    /**
-     * Constructs an iterator for a multipart RETS GetObject response.
-     *
-     * @param response The RETS GetObjectResponse to iterate over
-     * @param boundary The multipart boundary string
-     * @param streamBufferSize The buffer size for reading the response stream
-     */
-    private GetObjectResponseIterator(GetObjectResponse response, String boundary, int streamBufferSize) {
+    private GetObjectResponseStreamingIterator(GetObjectResponse response, String boundary, int streamBufferSize) {
         this.boundary = boundary;
 
         BufferedInputStream input = new BufferedInputStream(response.getInputStream(), streamBufferSize);
         this.multipartStream = new PushbackInputStream(input, BS.length() + this.boundary.length() + EOL.length());
     }
 
-    /**
-     * Returns {@code true} if the iterator has more elements (parts) to read.
-     * Caches the result to avoid redundant stream reads.
-     *
-     * @return {@code true} if there is another part, {@code false} otherwise
-     * @throws RetsRuntimeException if an I/O error occurs
-     */
     @Override
     public boolean hasNext() {
         if (this.hasNext != null)
@@ -161,14 +135,6 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
         }
     }
 
-    /**
-     * Returns the next SingleObjectResponse in the multipart stream.
-     * Resets the cached hasNext state.
-     *
-     * @return The next SingleObjectResponse
-     * @throws NoSuchElementException if no more elements exist
-     * @throws RetsRuntimeException if an error occurs while reading the next part
-     */
     @Override
     public T next() {
         if (this.hasNext() == false)
@@ -181,7 +147,6 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
             throw new RetsRuntimeException(e);
         }
     }
-
 
     public void remove() {
         throw new UnsupportedOperationException();
@@ -216,16 +181,10 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
                 headers.put(name, value);
             }
         }
-        return (T) new SingleObjectResponse(headers, new SinglePartInputStream(this.multipartStream, BS + this.boundary));
+        // NOTE: create SingleObjectResponse WITHOUT copying the input stream (streaming mode)
+        return (T) new SingleObjectResponse(headers, new SinglePartInputStream(this.multipartStream, BS + this.boundary), null, false);
     }
 
-    // TODO find existing library to do this
-    /**
-     * Reads the next line from the multipart stream, handling CR/LF and pushback for non-standard line endings.
-     *
-     * @return The next line as a String, or {@code null} if the end of stream is reached
-     * @throws IOException if an I/O error occurs
-     */
     private String readLine() throws IOException {
         boolean eolReached = false;
         StringBuilder line = new StringBuilder();
@@ -247,5 +206,4 @@ public class GetObjectResponseIterator<T extends SingleObjectResponse> implement
 
         return line.toString();
     }
-
 }

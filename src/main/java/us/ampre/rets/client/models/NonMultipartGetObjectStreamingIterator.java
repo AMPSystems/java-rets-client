@@ -1,6 +1,6 @@
-package us.ampre.rets.client;
+package us.ampre.rets.client.models;
 
-import us.ampre.rets.client.models.SingleObjectResponse;
+import us.ampre.rets.client.GetObjectIterator;
 
 import java.io.FileInputStream;
 import java.io.FilterInputStream;
@@ -11,29 +11,16 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
- * Iterator for a non-multipart GetObject response.
- * <p>
- * This iterator is single-use and will return at most one {@link SingleObjectResponse}.
- * Instead of eagerly reading the entire input stream into memory, the stream is copied
- * to a temporary file and the returned SingleObjectResponse exposes a FileInputStream
- * that deletes the temp file when closed.
- * </p>
+ * Streaming iterator for a non-multipart GetObject response.
+ * Returns SingleObjectResponse instances that do NOT copy the underlying InputStream,
+ * allowing callers to stream directly from the transport without buffering into memory.
  */
-public final class NonMultipartGetObjectResponseIterator implements GetObjectIterator {
+public final class NonMultipartGetObjectStreamingIterator implements GetObjectIterator<SingleObjectResponse> {
     private boolean exhausted;
     private final Map<String, String> headers;
     private final InputStream fileBackedStream;
 
-    /**
-     * Constructs a new iterator for a non-multipart response.
-     * The provided input stream is copied to a temporary file and closed.
-     *
-     * @param headers response headers
-     * @param in      input stream containing the response body (will be copied)
-     * @throws NullPointerException if headers or in is null
-     * @throws RuntimeException     if reading the stream fails
-     */
-    public NonMultipartGetObjectResponseIterator(Map<String, String> headers, InputStream in) {
+    public NonMultipartGetObjectStreamingIterator(Map<String, String> headers, InputStream in) {
         this.exhausted = false;
         this.headers = Objects.requireNonNull(headers, "headers");
         Objects.requireNonNull(in, "in");
@@ -58,12 +45,9 @@ public final class NonMultipartGetObjectResponseIterator implements GetObjectIte
         }
     }
 
-    /**
-     * No-op. The stream is file-backed and will be deleted when the returned InputStream is closed.
-     */
     @Override
     public void close() throws IOException {
-        // No action; file will be removed when the SingleObjectResponse's stream is closed
+        // No action; file will be removed when the returned stream is closed
     }
 
     @Override
@@ -83,7 +67,8 @@ public final class NonMultipartGetObjectResponseIterator implements GetObjectIte
 
         this.exhausted = true;
         try {
-            return new SingleObjectResponse(this.headers, this.fileBackedStream);
+            // Create SingleObjectResponse without copying the InputStream (streaming mode)
+            return new SingleObjectResponse(this.headers, this.fileBackedStream, null, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -7,12 +7,22 @@ plugins {
     id 'io.freefair.lombok' version '8.4'
 }
 
+// Disable Spring Boot's executable bootJar for this module so it acts as a library
+bootJar {
+    enabled = false
+}
+
+// Ensure the standard plain JAR is produced (library artifact)
+jar {
+    enabled = true
+}
+
 ext {
     set('springCloudVersion', "2023.0.0")
 }
 
 group = 'us.ampre'
-version = '1.2.2'
+version = '1.2.3-SNAPSHOT'
 description = 'Java Rets Client'
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
