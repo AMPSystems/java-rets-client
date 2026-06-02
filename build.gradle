@@ -22,7 +22,7 @@ ext {
 }
 
 group = 'us.ampre'
-version = '1.2.3-SNAPSHOT'
+version = '1.2.3'
 description = 'Java Rets Client'
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
