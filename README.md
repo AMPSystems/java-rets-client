@@ -1,4 +1,6 @@
-Forked from the trulia-java-rets-client February 2023.
+## Forked from the trulia-java-rets-client February 2023.
+
+## Package namespace changed to AMP owned domain to avoid conflicts.
 
 =================
 
@@ -228,6 +230,10 @@ Example of Geting Metadata:
 		}
 	}	
 
+
+## RETS 1.7.2 Compliance Summary
+
+An audit against RETS 1.7.2 (docs/rets_1_7_2.md) was performed. Changes applied include UA digest vector tests, hardened Set-Cookie parsing, ReplyText fixes, and GetObject multipart boundary fixes. All unit tests pass (76/76) as of 2026-03-27T10:05:39Z. See docs/rets-compliance.md and docs/rets-final-report.md for details.
 
 ## License
 [Trulia Java RETS Client is licensed under the MIT License](https://github.com/trulia/trulia-java-rets-client/blob/master/LICENSE)
